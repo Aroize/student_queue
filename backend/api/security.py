@@ -3,6 +3,8 @@ from jwt import JWT
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_time_from_int
 
+# Data classes for credentials
+
 class Credentials:
 
     def __init__(self, id: int):
@@ -22,7 +24,7 @@ class RefreshCredentials(AccessCredentials):
         super().__init__(access_token, id)
         self.refresh_token = refresh_token
 
-
+# Interface for jwt generator and validator
 
 class JwtTokenController:
 
@@ -39,12 +41,13 @@ class JwtTokenController:
         raise NotImplementedError("Not implemented")
 
 
-
+# Implementation of jwt generator and validator
 
 
 class JwtTokenControllerImpl(JwtTokenController):
 
 
+    # TODO(): change signature from str to files
     def __init__(self, access_secret: str, refresh_secret: str):
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
