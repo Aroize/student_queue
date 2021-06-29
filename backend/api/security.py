@@ -129,7 +129,7 @@ class JwtTokenControllerImpl(JwtTokenController):
         return now >= exp
 
 
-    def __generate_access_token__(self, id: Int, rcd: Int) -> str:
+    def __generate_access_token__(self, id: int, rcd: int) -> str:
         exp = get_int_from_datetime(
             datetime.now(timezone.utc) + timedelta(minutes=15)
         )
@@ -141,7 +141,7 @@ class JwtTokenControllerImpl(JwtTokenController):
         instance = JWT()
         return instance.encode(message, self.access_secret, alg='HS512')
 
-    def __generate_refresh_token__(self, rcd: Int) -> str:
+    def __generate_refresh_token__(self, rcd: int) -> str:
         exp = get_int_from_datetime(
             datetime.now(timezone.utc) + timedelta(weeks=2)
         )
