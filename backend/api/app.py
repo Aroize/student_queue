@@ -8,7 +8,7 @@ from versions import v0_1
 
 
 if __name__ == '__main__':
-    urls = [("/v0.1", v0_1.MainHandler)]
+    urls = [("/v0.1", v0_1.RouteHandler)]
 
     app = Application(urls)
     app.listen(5022)
