@@ -1,5 +1,5 @@
 from keys import *
-from jwt import JWT
+from jwt import JWT, AbstractJWKBase
 from random import randint
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_time_from_int, get_int_from_datetime
@@ -49,7 +49,7 @@ class JwtTokenControllerImpl(JwtTokenController):
 
 
     # TODO(): change signature from str to files
-    def __init__(self, access_secret: str, refresh_secret: str):
+    def __init__(self, access_secret: AbstractJWKBase, refresh_secret: AbstractJWKBase):
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
 
@@ -112,10 +112,10 @@ class JwtTokenControllerImpl(JwtTokenController):
         return RefreshCredentials(refresh_token, access_token, credentials.id)
 
 
-    def __parse_jwt__(self, token: str, key: str) -> dict:
+    def __parse_jwt__(self, token: str, key: AbstractJWKBase) -> dict:
         instance = JWT()
         try:
-            instance.decode(token, key, do_time_check=False)
+            return instance.decode(token, key, do_time_check=False)
         except Exception as e:
             return None
 
@@ -139,7 +139,7 @@ class JwtTokenControllerImpl(JwtTokenController):
             'exp': exp
         }
         instance = JWT()
-        return instance.encode(message, self.access_secret, alg='HS512')
+        return instance.encode(message, self.access_secret, alg='RS256')
 
     def __generate_refresh_token__(self, rcd: int) -> str:
         exp = get_int_from_datetime(
@@ -150,4 +150,4 @@ class JwtTokenControllerImpl(JwtTokenController):
             'exp': exp
         }
         instance = JWT()
-        return instance.encode(message, self.refresh_secret, alg='HS512')
+        return instance.encode(message, self.refresh_secret, alg='RS256')
