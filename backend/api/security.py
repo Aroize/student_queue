@@ -1,4 +1,7 @@
 from keys import *
+from jwt import JWT
+from datetime import datetime, timedelta, timezone
+from jwt.utils import get_time_from_int
 
 class Credentials:
 
@@ -41,6 +44,12 @@ class JwtTokenController:
 
 class JwtTokenControllerImpl(JwtTokenController):
 
+
+    def __init__(self, access_secret: str, refresh_secret: str):
+        self.access_secret = access_secret
+        self.refresh_secret = refresh_secret
+
+
     def retreive_credentials(headers: dict) -> Credentials:
         if HEADER_USER_ID not in headers:
             raise RuntimeError("Credentials must contain at least user id")
@@ -63,4 +72,49 @@ class JwtTokenControllerImpl(JwtTokenController):
         if not isinstance(credentials, AccessCredentials):
             return False
 
-        
+        jwt = self.__parse_jwt__(credentials.access_token, self.access_secret)
+        if jwt is None or 'sub' not in jwt or self.__is_token_expired__(jwt):
+            return False
+
+        return jwt['sub'] == credentials.id
+
+
+    def is_refresh_token_valid(credentials: Credentials) -> bool:
+        if not isinstance(credentials, RefreshCredentials):
+            return False
+
+        access_jwt = self.__parse_jwt__(credentials.access_token, self.access_secret)
+        refresh_jwt = self.__parse_jwt__(credentials.refresh_token, self.refresh_secret)
+
+        if access_jwt is None or refresh_jwt is None:
+            return False
+
+        if 'sub' not in access_jwt or access_jwt['sub'] != credentials.id:
+            return False
+
+        if self.__is_token_expired__(refresh_jwt):
+            return False
+
+        if 'rcd' not in access_jwt or 'sub' not in refresh_jwt:
+            return False
+
+        return access_jwt['rcd'] == refresh_jwt['sub']
+
+
+    def generate_full_credentials(credentials: Credentials) -> RefreshCredentials:
+        pass
+
+    def __parse_jwt__(self, token: str, key: str) -> dict:
+        instance = JWT()
+        try:
+            instance.decode(token, key, do_time_check=False)
+        except Exception as e:
+            return None
+
+    def __is_token_expired__(self, token: dict) -> bool:
+        time = token['exp']
+        now = datetime.now(timezone.utc)
+
+        exp = get_time_from_int(time)
+
+        return now >= exp

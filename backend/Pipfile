@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 tornado = "*"
 loguru = "*"
+jwt = "*"
 
 [dev-packages]
 
