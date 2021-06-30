@@ -1,5 +1,6 @@
+import json
 from keys import *
-from jwt import JWT, AbstractJWKBase
+from jwt import JWT, AbstractJWKBase, jwk_from_dict
 from random import randint
 from datetime import datetime, timedelta, timezone
 from jwt.utils import get_time_from_int, get_int_from_datetime
@@ -49,7 +50,27 @@ class JwtTokenControllerImpl(JwtTokenController):
 
 
     # TODO(): change signature from str to files
-    def __init__(self, access_secret: AbstractJWKBase, refresh_secret: AbstractJWKBase):
+    def __init__(
+            self,
+            access_secret: AbstractJWKBase = None,
+            refresh_secret: AbstractJWKBase = None,
+            access_secret_file: str = None,
+            refresh_secret_file: str = None,
+            access_secret_json: dict = None,
+            refresh_secret_json: dict = None
+        ):
+
+        if access_secret_file is not None and refresh_secret_file is not None:
+            access_secret_json = json.load(open(access_secret_file))
+            refresh_secret_json = json.load(open(refresh_secret_file))
+
+        if access_secret_json is not None and refresh_secret_json is not None:
+            access_secret = jwk_from_dict(access_secret_json)
+            refresh_secret = jwk_from_dict(refresh_secret_json)
+
+        if access_secret is None or refresh_secret is None:
+            raise RuntimeError("Secret keys for access and refresh tokens must be specified")
+
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
 
