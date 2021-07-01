@@ -19,8 +19,6 @@ def create_jwt_controller() -> JwtTokenController:
     )
 
 
-
-
 class SecurityTests(unittest.TestCase):
 
     def test_creating_jwt_controller(self):
