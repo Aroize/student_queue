@@ -11,6 +11,9 @@ class JRPCErrorCode(Enum):
     InternalError = -32603
     ServerError = -32000
 
+    AbsentUserIdentity = 1
+    AccessTokenExpired = 2
+
 
 
 class InvalidRequestException(Exception):

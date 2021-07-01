@@ -1,1 +1,1 @@
-from .base_handlers import EchoHandler
+from .base_handlers import EchoHandler, SecuredEchoHandler

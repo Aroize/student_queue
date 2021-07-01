@@ -26,9 +26,10 @@ class JRPCErrorResponse(dict):
 class RouteHandler(RequestHandler):
     """jRPC application entry point. Routes requests to real handlers"""
 
-    def initialize(self, methods: Dict[str, Callable]):
+    def initialize(self, methods: Dict[str, Callable], jwt_controller: Callable):
         """Initializes router with real handlers"""
         self.methods = methods
+        self.jwt_controller = jwt_controller
 
     def post(self):
         orig_payload = json.loads(self.request.body)
@@ -54,6 +55,27 @@ class RouteHandler(RequestHandler):
 
         # Delegate to real method handler
         handler = self.methods[method]
+
+        # Checking for request credentials
+        if handler.is_secured():
+            headers = self.request.headers
+            error = None
+            credentials = None
+            try:
+                credentials = self.jwt_controller.retreive_credentials(headers)
+            except RuntimeError:
+                error = JRPCErrorResponse(JRPCErrorCode.AbsentUserIdentity.value,
+                                          "Method is secured, at least must be provided user id",
+                                          JRPCRequest.get_id(orig_payload))
+            if credentials is not None and not self.jwt_controller.is_access_token_valid(credentials):
+                error = JRPCErrorResponse(JRPCErrorCode.AccessTokenExpired.value,
+                                          "Method is secured, access token is expired or absent",
+                                          JRPCRequest.get_id(orig_payload))
+
+            if error is not None:
+                return self.write(error.json)
+
+
         result = handler.process(payload)
 
         return self.write(result.json)
