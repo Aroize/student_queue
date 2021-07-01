@@ -61,8 +61,10 @@ class JwtTokenControllerImpl(JwtTokenController):
         ):
 
         if access_secret_file is not None and refresh_secret_file is not None:
-            access_secret_json = json.load(open(access_secret_file))
-            refresh_secret_json = json.load(open(refresh_secret_file))
+            with open(access_secret_file) as access:
+                access_secret_json = json.load(access)
+            with open(refresh_secret_file) as refresh:
+                refresh_secret_json = json.load(refresh)
 
         if access_secret_json is not None and refresh_secret_json is not None:
             access_secret = jwk_from_dict(access_secret_json)
