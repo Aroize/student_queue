@@ -8,8 +8,8 @@ from keys import *
 from security import *
 from jwt import JWT, jwk_from_dict
 
-access_path = "../tools/certs/access_secret.json"
-refresh_path = "../tools/certs/refresh_secret.json"
+access_path = "backend/tools/certs/access_secret.json"
+refresh_path = "backend/tools/certs/refresh_secret.json"
 
 
 def create_jwt_controller() -> JwtTokenController:
@@ -20,6 +20,9 @@ def create_jwt_controller() -> JwtTokenController:
 
 
 class SecurityTests(unittest.TestCase):
+
+    def test_failed(self):
+        self.assertTrue(False)
 
     def test_creating_jwt_controller(self):
 

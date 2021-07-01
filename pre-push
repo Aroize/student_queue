@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CURRENT_DIR=$PWD
+PIPELINE="$CURRENT_DIR/backend/tests/run_tests.py"
+
+python3 $PIPELINE
+
+exit $?
