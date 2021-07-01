@@ -2,10 +2,10 @@ import sys
 sys.path.insert(0, "../../api")
 
 import json
-import datetime
 import unittest
 from keys import *
 from security import *
+from datetime import datetime, timezone, timedelta
 from jwt import JWT, jwk_from_dict
 
 access_path = "backend/tools/certs/access_secret.json"
@@ -59,10 +59,35 @@ class SecurityTests(unittest.TestCase):
     def test_retrieving_credentials(self):
         controller = create_jwt_controller()
 
-    def test_access_token_expiration(self):
-        controller = create_jwt_controller()
+        headers = {}
 
-    def test_creating_jwt_controller(self):
+        with self.assertRasies(RuntimeError):
+            controller.retreive_credentials(headers)
+
+        uid = 111
+        headers[HEADER_USER_ID] = uid
+        creds = controller.retreive_credentials(headers)
+        self.assertIsInstance(creds, Credentials)
+        self.assertEquals(cred.id, uid)
+
+        fake_access_token = "qwertyuiop"
+        headers[HEADER_ACCESS_TOKEN] = fake_access_token
+        creds = controller.retreive_credentials(headers)
+        self.assertIsInstance(creds, AccessCredentials)
+        self.assertEquals(cred.id, uid)
+        self.assertEquals(cred.access_token, fake_access_token)
+
+        fake_refresh_token = "asdfghjkl"
+        headers[HEADER_REFRESH_TOKEN] = fake_refresh_token
+        creds = controller.retreive_credentials(headers)
+        self.assertIsInstance(creds, RefreshCredentials)
+        self.assertEquals(cred.id, uid)
+        self.assertEquals(cred.access_token, fake_access_token)
+        self.assertEquals(cred.refresh_token, fake_refresh_token)
+
+
+
+    def test_access_token_expiration(self):
         controller = create_jwt_controller()
 
     def test_refresh_token_expiration(self):
