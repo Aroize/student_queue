@@ -119,7 +119,7 @@ class SecurityTests(unittest.TestCase):
         expired_credentials = expired_controller.generate_full_credentials(fake_credentials)
 
         controller = create_jwt_controller()
-        self.assertFalse(controller.is_access_token_valid())
+        self.assertFalse(controller.is_access_token_valid(expired_credentials))
 
 
     def test_refresh_token_expiration(self):
