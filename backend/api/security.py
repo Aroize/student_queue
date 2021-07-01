@@ -54,7 +54,6 @@ class NowDateTimeProvider:
 class JwtTokenControllerImpl(JwtTokenController):
 
 
-    # TODO(): change signature from str to files
     def __init__(
             self,
             access_secret: AbstractJWKBase = None,
