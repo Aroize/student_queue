@@ -61,7 +61,7 @@ class SecurityTests(unittest.TestCase):
 
         headers = {}
 
-        with self.assertRasies(RuntimeError):
+        with self.assertRaises(RuntimeError):
             controller.retreive_credentials(headers)
 
         uid = 111
