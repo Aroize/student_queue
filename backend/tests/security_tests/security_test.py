@@ -21,9 +21,6 @@ def create_jwt_controller() -> JwtTokenController:
 
 class SecurityTests(unittest.TestCase):
 
-    def test_failed(self):
-        self.assertTrue(False)
-
     def test_creating_jwt_controller(self):
 
         from_path = JwtTokenControllerImpl(
