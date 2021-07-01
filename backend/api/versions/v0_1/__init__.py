@@ -1,2 +1,2 @@
 from .router import RouteHandler
-from . import handlers
+from .handlers import EchoHandler
