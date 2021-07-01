@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, "../../api")
 
 import json
+import datetime
 import unittest
 from keys import *
 from security import *
@@ -55,6 +56,8 @@ class SecurityTests(unittest.TestCase):
         self.assertIsNotNone(from_jwk.access_secret)
         self.assertIsNotNone(from_jwk.refresh_secret)
 
+    def test_retrieving_credentials(self):
+        controller = create_jwt_controller()
 
     def test_access_token_expiration(self):
         controller = create_jwt_controller()
@@ -62,11 +65,17 @@ class SecurityTests(unittest.TestCase):
     def test_creating_jwt_controller(self):
         controller = create_jwt_controller()
 
-    def test_refresh_token_expiration(controller):
+    def test_refresh_token_expiration(self):
         controller = create_jwt_controller()
 
-    def test_generating_token(controller):
+    def test_generating_token(self):
         controller = create_jwt_controller()
+
+        fake_credentials = Credentials(1)
+        fake_refresh_credentials = controller.generate_full_credentials(fake_credentials)
+
+        self.assertTrue(controller.is_access_token_valid(fake_refresh_credentials))
+        self.assertTrue(controller.is_refresh_token_valid(fake_refresh_credentials))
 
 
 if __name__ == '__main__':

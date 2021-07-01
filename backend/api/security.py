@@ -45,6 +45,11 @@ class JwtTokenController:
 
 # Implementation of jwt generator and validator
 
+class NowDateTimeProvider:
+
+    def now(self) -> datetime:
+        return datetime.now(timezone.utc)
+
 
 class JwtTokenControllerImpl(JwtTokenController):
 
@@ -57,8 +62,11 @@ class JwtTokenControllerImpl(JwtTokenController):
             access_secret_file: str = None,
             refresh_secret_file: str = None,
             access_secret_json: dict = None,
-            refresh_secret_json: dict = None
+            refresh_secret_json: dict = None,
+            datetime_provider: NowDateTimeProvider = NowDateTimeProvider()
         ):
+
+        self.datetime_provider = datetime_provider
 
         if access_secret_file is not None and refresh_secret_file is not None:
             with open(access_secret_file) as access:
@@ -145,7 +153,7 @@ class JwtTokenControllerImpl(JwtTokenController):
 
     def __is_token_expired__(self, token: dict) -> bool:
         time = token['exp']
-        now = datetime.now(timezone.utc)
+        now = self.datetime_provider.now()
 
         exp = get_time_from_int(time)
 
@@ -154,7 +162,7 @@ class JwtTokenControllerImpl(JwtTokenController):
 
     def __generate_access_token__(self, id: int, rcd: int) -> str:
         exp = get_int_from_datetime(
-            datetime.now(timezone.utc) + timedelta(minutes=15)
+            self.datetime_provider.now() + timedelta(minutes=15)
         )
         message = {
             'sub': id,
@@ -166,7 +174,7 @@ class JwtTokenControllerImpl(JwtTokenController):
 
     def __generate_refresh_token__(self, rcd: int) -> str:
         exp = get_int_from_datetime(
-            datetime.now(timezone.utc) + timedelta(weeks=2)
+            self.datetime_provider.now() + timedelta(weeks=2)
         )
         message = {
             'sub': rcd,
