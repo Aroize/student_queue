@@ -18,7 +18,7 @@ class TestNowDateTimeProvider(NowDateTimeProvider):
         self.delta = delta
 
     def now(self) -> datetime:
-        return supe().now() - self.delta
+        return super().now() - self.delta
 
 
 def create_jwt_controller() -> JwtTokenController:
