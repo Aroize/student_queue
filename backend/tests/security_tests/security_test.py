@@ -68,22 +68,22 @@ class SecurityTests(unittest.TestCase):
         headers[HEADER_USER_ID] = uid
         creds = controller.retreive_credentials(headers)
         self.assertIsInstance(creds, Credentials)
-        self.assertEquals(cred.id, uid)
+        self.assertEquals(creds.id, uid)
 
         fake_access_token = "qwertyuiop"
         headers[HEADER_ACCESS_TOKEN] = fake_access_token
         creds = controller.retreive_credentials(headers)
         self.assertIsInstance(creds, AccessCredentials)
-        self.assertEquals(cred.id, uid)
-        self.assertEquals(cred.access_token, fake_access_token)
+        self.assertEquals(creds.id, uid)
+        self.assertEquals(creds.access_token, fake_access_token)
 
         fake_refresh_token = "asdfghjkl"
         headers[HEADER_REFRESH_TOKEN] = fake_refresh_token
         creds = controller.retreive_credentials(headers)
         self.assertIsInstance(creds, RefreshCredentials)
-        self.assertEquals(cred.id, uid)
-        self.assertEquals(cred.access_token, fake_access_token)
-        self.assertEquals(cred.refresh_token, fake_refresh_token)
+        self.assertEquals(creds.id, uid)
+        self.assertEquals(creds.access_token, fake_access_token)
+        self.assertEquals(creds.refresh_token, fake_refresh_token)
 
 
 
