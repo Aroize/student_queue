@@ -4,11 +4,11 @@ sys.path.insert(0, "backend/api")
 
 import os
 import unittest
-import security
+import security_tests
 
 
 if __name__ == '__main__':
-    suits = [unittest.TestLoader().loadTestsFromModule(security), ]
+    suites = [unittest.TestLoader().loadTestsFromModule(security_tests), ]
 
-    for suite in suits:
+    for suite in suites:
         unittest.TextTestRunner(verbosity=2).run(suite)
