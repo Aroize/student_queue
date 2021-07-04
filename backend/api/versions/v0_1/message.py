@@ -1,7 +1,7 @@
-from typing import Dict, Union
-from .exceptions import InvalidRequestException
+from typing import Dict, Union, Callable
+from .exceptions import InvalidRequestException, InvalidAccessCredentials
 
-
+################################### REQUESTS ###################################
 
 class JRPCRequest:
     """Validates, parses and serializes jRPC request"""
@@ -40,6 +40,23 @@ class JRPCRequest:
                 "id": self.id}
 
 
+class SecuredJRPCRequest(JRPCRequest):
+
+    def __init__(self, headers: dict, validator: Callable, other: JRPCRequest):
+        self.method = other.method
+        self.params = other.params
+        self.id = other.id
+
+        credentials = validator.retreive_credentials(headers)
+
+        if not validator.is_access_token_valid(credentials):
+            raise InvalidAccessCredentials
+
+        self.credentials = credentials
+
+################################################################################
+
+
 class BaseJRPCResponse:
     def __init__(self):
         # TODO
@@ -65,4 +82,4 @@ class JRPCFailedResponse:
         raise NotImplementedError
 
 
-__all__ = ["JRPCRequest", "JRPCSuccessResponse", "JRPCFailedResponse"]
+__all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse", "JRPCFailedResponse"]
