@@ -1,4 +1,4 @@
-from versions.v0_1.message import JRPCSuccessResponse, JRPCRequest
+from versions.v0_1.message import BaseJRPCResponse, JRPCRequest
 
 class BaseHandler:
 
@@ -8,7 +8,7 @@ class BaseHandler:
     def method(self) -> str:
         raise NotImplementedError
 
-    def process(self, payload: JRPCRequest) -> JRPCSuccessResponse: # TODO: generalize
+    def process(self, payload: JRPCRequest) -> BaseJRPCResponse: # TODO: generalize
         raise NotImplementedError
 
 
@@ -24,7 +24,7 @@ class EchoHandler(BaseHandler):
         return "debug.echo"
 
     """Returns request as a result"""
-    def process(self, payload: JRPCRequest) -> JRPCSuccessResponse:
+    def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
         return JRPCSuccessResponse(payload.json, payload.id)
 
 
@@ -33,5 +33,5 @@ class SecuredEchoHandler(SecuredHandler):
     def method(self) -> str:
         return "debug.echo_secured"
 
-    def process(self, payload: JRPCRequest) -> JRPCSuccessResponse:
+    def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
         return JRPCSuccessResponse(payload.json, payload.id)

@@ -11,7 +11,8 @@ from versions import v0_1
 def create_methods_dict():
     endpoints = [
         v0_1.EchoHandler(),
-        v0_1.SecuredEchoHandler()
+        v0_1.SecuredEchoHandler(),
+        v0_1.RegistrationHandler()
     ]
     return dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 
