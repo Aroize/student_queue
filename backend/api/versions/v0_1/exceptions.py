@@ -21,3 +21,6 @@ class InvalidRequestException(Exception):
 
 class InvalidAccessCredentials(Exception):
     pass
+
+class InvalidParametersException(Exception):
+    pass
