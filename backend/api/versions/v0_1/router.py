@@ -1,26 +1,9 @@
 from typing import Union, Callable, Dict
 import json
 from tornado.web import RequestHandler
-from .message import JRPCRequest, SecuredJRPCRequest
+from .message import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
 from .exceptions import JRPCErrorCode
-
-
-
-class JRPCErrorResponse(dict):
-    """Creates serializable error response"""
-    def __init__(self, code: int, message: str, id: int=None):
-        # TODO: move to messages
-        self._response = {"jsonrpc": "2.0",
-                          "error": {
-                              "code": code,
-                              "message": message},
-                          "id": id}
-
-    @property
-    def json(self):
-        return self._response
-
 
 
 class RouteHandler(RequestHandler):

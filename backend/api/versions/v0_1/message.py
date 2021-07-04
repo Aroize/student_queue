@@ -58,28 +58,50 @@ class SecuredJRPCRequest(JRPCRequest):
 
 
 class BaseJRPCResponse:
-    def __init__(self):
-        # TODO
+
+    def __init__(self, id: int):
+        self.id = id
+
+    def response_field(self) -> str:
         raise NotImplementedError
 
-
-class JRPCSuccessResponse:
-    def __init__(self, result: Dict, id: Union[int, None]):
-        self.result = result
-        self.id = id
+    def response_value(self) -> Dict:
+        raise NotImplementedError
 
     @property
     def json(self):
-        return {"jsonrpc": "2.0",
-                "result": self.result,
-                "id": self.id}
+        return {
+            "jsonrpc": "2.0",
+            self.response_field(): self.response_value(),
+            "id": self.id
+        }
 
 
+class JRPCSuccessResponse(BaseJRPCResponse):
+    def __init__(self, result: Dict, id: int):
+        super().__init__(id)
+        self.result = result
 
-class JRPCFailedResponse:
-    def __init__(self):
-        #TODO
-        raise NotImplementedError
+    def response_field(self) -> str:
+        return "result"
+
+    def response_value(self) -> Dict:
+        return self.result
+
+
+class JRPCErrorResponse(BaseJRPCResponse):
+    def __init__(self, code: int, message: str, id: int):
+        super().__init__(id)
+        self.error = {
+            "code": code,
+            "message": message
+        }
+
+    def response_field(self) -> str:
+        return "error"
+
+    def response_value(self) -> Dict:
+        return self.error
 
 
 __all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse", "JRPCFailedResponse"]
