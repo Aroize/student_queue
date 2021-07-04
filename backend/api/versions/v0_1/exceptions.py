@@ -18,3 +18,6 @@ class JRPCErrorCode(Enum):
 
 class InvalidRequestException(Exception):
     pass
+
+class InvalidAccessCredentials(Exception):
+    pass
