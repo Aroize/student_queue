@@ -13,6 +13,7 @@ class JRPCErrorCode(Enum):
 
     AbsentUserIdentity = 1
     AccessTokenExpired = 2
+    EntityAlreadyExists = 3
 
 
 

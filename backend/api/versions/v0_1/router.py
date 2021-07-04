@@ -56,12 +56,6 @@ class RouteHandler(RequestHandler):
                 return self.write(error.json)
 
         # execute method
-        try:
-            result = handler.process(payload)
-        except InvalidParametersException:
-            error = JRPCErrorResponse(JRPCErrorCode.InvalidParameters.value,
-                                      "Invalid paramters for this method",
-                                      JRPCRequest.get_id(orig_payload))
-            return self.write(error.json)
+        result = handler.process(payload)
 
         return self.write(result.json)

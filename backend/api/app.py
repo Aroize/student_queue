@@ -1,18 +1,18 @@
 from loguru import logger
-from concurrent.futures import ThreadPoolExecutor
-from tornado.concurrent import run_on_executor
+from versions import v0_1
+from domain import UserRepository
 from tornado.ioloop import IOLoop
+from tornado.concurrent import run_on_executor
+from concurrent.futures import ThreadPoolExecutor
 from tornado.web import Application, RequestHandler
 from security import JwtTokenController, JwtTokenControllerImpl
-
-from versions import v0_1
 
 
 def create_methods_dict():
     endpoints = [
         v0_1.EchoHandler(),
         v0_1.SecuredEchoHandler(),
-        v0_1.RegistrationHandler()
+        v0_1.RegistrationHandler(UserRepository())
     ]
     return dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 
