@@ -3,7 +3,7 @@ import json
 from tornado.web import RequestHandler
 from .message import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
-from .exceptions import JRPCErrorCode
+from .exceptions import JRPCErrorCode, InvalidParametersException
 
 
 class RouteHandler(RequestHandler):
@@ -55,6 +55,13 @@ class RouteHandler(RequestHandler):
             if error is not None:
                 return self.write(error.json)
 
-        result = handler.process(payload)
+        # execute method
+        try:
+            result = handler.process(payload)
+        except InvalidParametersException:
+            error = JRPCErrorResponse(JRPCErrorCode.InvalidParameters.value,
+                                      "Invalid paramters for this method",
+                                      JRPCRequest.get_id(orig_payload))
+            return self.write(error.json)
 
         return self.write(result.json)
