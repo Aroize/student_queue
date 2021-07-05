@@ -1,4 +1,4 @@
-from versions.v0_1.message import BaseJRPCResponse, JRPCRequest
+from versions.v0_1.message import BaseJRPCResponse, JRPCRequest, JRPCSuccessResponse
 
 class BaseHandler:
 
