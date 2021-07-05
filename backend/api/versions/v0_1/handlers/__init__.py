@@ -1,2 +1,2 @@
 from .base_handlers import EchoHandler, SecuredEchoHandler
-from .auth import RegistrationHandler
+from .auth_handlers import RegistrationHandler

@@ -1,18 +1,22 @@
 from loguru import logger
 from versions import v0_1
-from domain import UserRepository
+from domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
 from tornado.ioloop import IOLoop
 from tornado.concurrent import run_on_executor
 from concurrent.futures import ThreadPoolExecutor
 from tornado.web import Application, RequestHandler
 from security import JwtTokenController, JwtTokenControllerImpl
+from mail_service import MailSenderService
 
 
 def create_methods_dict():
+    mail_sender = MailSenderService("../tools/smtp_config.json", "./res/email.html")
+    user_interactor = UserInteractor(UserRepository(), UserEmailConfirmationRepository(), mail_sender)
+
     endpoints = [
         v0_1.EchoHandler(),
         v0_1.SecuredEchoHandler(),
-        v0_1.RegistrationHandler(UserRepository())
+        v0_1.RegistrationHandler(user_interactor)
     ]
     return dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 
