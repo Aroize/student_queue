@@ -39,7 +39,11 @@ def run():
         "jwt_controller": create_jwt_controller()
     }
 
-    urls = [("/v0.1", v0_1.RouteHandler, main_router_params)]
+    methods_names = sorted(main_router_params["methods"].keys())
+    logger.info("Allowed methods:\n  " + '\n  '.join(methods_names))
+
+    urls = [("/v0.1", v0_1.RouteHandler, main_router_params),
+            ("/manage/(.*)", StaticFileHandler, {"path": "../../frontend/"})]
 
     app = Application(urls)
     app.listen(5022)

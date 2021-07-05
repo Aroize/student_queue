@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Q Lookup</title>
+    <script src="/manage/users.js" />
+    <script></script>
+  </head>
+  <body>
+    <h1>Custom query</h1>
+    <p>
+      method:
+      <textarea rows="1" cols="50" id="stdin_send_method" placeholder="string"></textarea>
+      <br>
+      params:
+      <textarea rows="5" cols="50" id="stdin_send_params" placeholder="{}"></textarea>
+    </p>
+    <button type="button" onclick="send_custom_request()">Отправить запрос</button>
+    <p>
+      result:<br>
+      <textarea id="stdout_send" rows="6" cols="80"></textarea><br>
+      error:<br>
+      <textarea id="stderr_send" rows="6" cols="80"></textarea><br>
+    </p>
+
+    <h1>Presets</h1>
+    <ul>
+      <li>
+        manage.users.list Получить всех юзеров
+        <button type="button" onclick="send_and_display_request('manage.users.list', {})">
+          send
+        </button>
+      </li>
+    </ul>
+  </body>
+</html>
