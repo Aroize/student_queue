@@ -180,6 +180,12 @@ class UserInteractor:
         return user
 
 
+    def list(self) -> List[String]:
+        """Returns list of all users with data"""
+        users = self.user_repository.select_all()
+        return list(map(str, users))
+
+
     # TODO(): remove this hardcode, mode to some controller
     def build_verification_url(self, code):
         return "http://localhost:5022/verify_email?code={}".format(code)

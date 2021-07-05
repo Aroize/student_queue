@@ -1,10 +1,11 @@
 from loguru import logger
+from concurrent.futures import ThreadPoolExecutor
+from tornado.concurrent import run_on_executor
+from tornado.web import Application, RequestHandler, StaticFileHandler
+from tornado.ioloop import IOLoop
+
 from versions import v0_1
 from domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
-from tornado.ioloop import IOLoop
-from tornado.concurrent import run_on_executor
-from concurrent.futures import ThreadPoolExecutor
-from tornado.web import Application, RequestHandler
 from security import JwtTokenController, JwtTokenControllerImpl
 from mail_service import MailSenderService
 
@@ -16,7 +17,8 @@ def create_methods_dict():
     endpoints = [
         v0_1.EchoHandler(),
         v0_1.SecuredEchoHandler(),
-        v0_1.RegistrationHandler(user_interactor)
+        v0_1.RegistrationHandler(user_interactor),
+        v0_1.ListUsersHandler(user_interactor)
     ]
     return dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 
@@ -28,7 +30,6 @@ def create_jwt_controller() -> JwtTokenController:
         access_secret_file=access_secret,
         refresh_secret_file=refresh_secret
     )
-
 
 
 def run():
