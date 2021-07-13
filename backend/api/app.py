@@ -3,7 +3,7 @@ import pathlib
 from loguru import logger
 from concurrent.futures import ThreadPoolExecutor
 from tornado.concurrent import run_on_executor
-from tornado.web import Application, RequestHandler, StaticFileHandler
+from tornado.web import Application, RequestHandler
 from tornado.ioloop import IOLoop
 
 from versions import v0_1
@@ -98,8 +98,13 @@ class StudentQueueApp:
             "jwt_controller": jwt_controller
         }
 
+        email_params = {
+            "user_interactor": user_interactor
+        }
+
         self.urls = [
             ("/v0.1", v0_1.RouteHandler, router_params),
+            ("/verify_email", v0_1.EmailVerificationHandler, email_params)
         ]
 
 

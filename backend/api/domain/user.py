@@ -40,7 +40,7 @@ class UserEmailConfirmation(Base):
     id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     code = Column(Integer)
 
-    def __str__(self):
+    def __repr__(self):
         return """UserEmailConfirmation[id={}, code={}]""".format(self.id, self.code)
 
 
@@ -77,6 +77,21 @@ class UserRepository:
             session.commit()
             return user
 
+    def update(self, user: User):
+        with self.accessor().session() as session:
+            values = {
+                "id": user.id,
+                "login": user.login,
+                "password": user.password,
+                "email": user.email,
+                "name": user.name,
+                "surname": user.surname,
+                "email_confirmed": user.email_confirmed,
+                "registration_timestamp": user.registration_timestamp
+            }
+            session.query(User).filter_by(id=user.id).update(values)
+            session.commit()
+
     def select_all(self) -> List[User]:
         with self.accessor().session() as session:
             return session.query(User).all()
@@ -99,8 +114,7 @@ class UserEmailConfirmationRepository:
     def __init__(self):
         self.accessor = DBAccessor
 
-    def create(self, id: int) -> UserEmailConfirmation:
-        code = random.randint(100000, 999999)
+    def create(self, id: int, code: int) -> UserEmailConfirmation:
         with self.accessor().session() as session:
             session.query(UserEmailConfirmation).filter_by(id=id).delete()
             session.expire_on_commit = False
@@ -110,6 +124,20 @@ class UserEmailConfirmationRepository:
             session.flush()
             session.commit()
             return user_confirmation
+
+    def find_confirmation_by_user(self, id: int) -> Optional[UserEmailConfirmation]:
+        with self.accessor().session() as session:
+            return session.query(UserEmailConfirmation) \
+                .filter_by(id=id) \
+                .first()
+
+    def delete_confirmation_by_user(self, id: int):
+        with self.accessor().session() as session:
+            session.query(UserEmailConfirmation) \
+                .filter_by(id=id) \
+                .delete()
+            session.commit()
+
 
     def select_all(self) -> List[UserEmailConfirmation]:
         with self.accessor().session() as session:
@@ -167,12 +195,27 @@ class UserInteractor:
         password_hash = sha256(password.encode()).hexdigest()
 
         user = self.user_repository.create(login, password_hash, email, name, surname)
-        confirmation = self.email_confirmation_repository.create(user.id)
-        url = self.build_verification_url(confirmation.code)
+        code = random.randint(100000, 999999)
+        confirmation = self.email_confirmation_repository.create(user.id, code)
+        url = self.build_verification_url(confirmation.id, confirmation.code)
         self.mail_service.send_verification_email(url)
 
         return user
 
+    def confirm_email(self, id: int, code: int) -> bool:
+
+        confirmation = self.email_confirmation_repository.find_confirmation_by_user(id)
+        if confirmation is None or confirmation.code != code:
+            return False
+        self.email_confirmation_repository.delete_confirmation_by_user(id)
+
+        user = self.user_repository.find_user_by_id(id)
+        user.email_confirmed = True
+        self.user_repository.update(user)
+
+        return True
+
+
     # TODO(): remove this hardcode, mode to some controller
-    def build_verification_url(self, code):
-        return "http://localhost:5022/verify_email?code={}".format(code)
+    def build_verification_url(self, id, code):
+        return "http://localhost:5022/verify_email?id={}&code={}".format(id, code)

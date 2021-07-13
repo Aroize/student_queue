@@ -1,6 +1,7 @@
-from typing import Union, Callable, Dict
 import json
+from loguru import logger
 from tornado.web import RequestHandler
+from typing import Union, Callable, Dict
 from .message import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
 from .exceptions import JRPCErrorCode, InvalidParametersException
@@ -59,3 +60,23 @@ class RouteHandler(RequestHandler):
         result = handler.process(payload)
 
         return self.write(result.json)
+
+class EmailVerificationHandler(RequestHandler):
+
+    def initialize(self, user_interactor: Callable):
+        self.user_interactor = user_interactor
+
+    def get(self):
+        id = int(self.get_argument('id'))
+        code = int(self.get_argument('code'))
+
+        logger.info("called verify_email with id = {} and code = {}".format(id, code))
+
+        if id is None or code is None:
+            self.redirect('/res/html/failed.html')
+        elif self.user_interactor.confirm_email(id, code):
+            self.redirect('/res/html/success.html')
+        else:
+            self.redirect('/res/html/failed.html')
+
+        return
