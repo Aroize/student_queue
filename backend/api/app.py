@@ -16,7 +16,8 @@ from mail_service import MailSenderService
 
 class Cleaner:
 
-    PERIOD_S = 24 * 60 * 60
+    def __init__(self):
+        self.period_in_sec = 24 * 60 * 60
 
     def __call__(self):
         # DO CLEAR HERE
@@ -25,7 +26,7 @@ class Cleaner:
         self.schedule()
 
     def schedule(self):
-        IOLoop.instance().add_timeout(time.time() + Cleaner.PERIOD_S, self)
+        IOLoop.instance().add_timeout(time.time() + self.period_in_sec, self)
 
 
 class StudentQueueApp:
@@ -87,7 +88,8 @@ class StudentQueueApp:
         endpoints = [
             v0_1.EchoHandler(),
             v0_1.SecuredEchoHandler(),
-            v0_1.RegistrationHandler(user_interactor)
+            v0_1.RegistrationHandler(user_interactor),
+            v0_1.AuthHandler(user_interactor, jwt_controller)
         ]
         method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 

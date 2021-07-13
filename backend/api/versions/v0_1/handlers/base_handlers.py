@@ -1,4 +1,5 @@
-from versions.v0_1.message import BaseJRPCResponse, JRPCRequest, JRPCSuccessResponse
+from versions.v0_1.message import BaseJRPCResponse, JRPCErrorResponse, JRPCSuccessResponse, JRPCRequest
+from versions.v0_1.exceptions import JRPCErrorCode
 
 class BaseHandler:
 
@@ -10,6 +11,13 @@ class BaseHandler:
 
     def process(self, payload: JRPCRequest) -> BaseJRPCResponse: # TODO: generalize
         raise NotImplementedError
+
+    def wrap_invalid_response(self, message: str) -> JRPCErrorResponse:
+        return JRPCErrorResponse(
+            JRPCErrorCode.InvalidParameters.value,
+            message,
+            None
+        )
 
 
 class SecuredHandler(BaseHandler):

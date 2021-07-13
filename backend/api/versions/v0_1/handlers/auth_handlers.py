@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(0, "../../../../../api")
+
+from security import Credentials, JwtTokenController
 from typing import Callable
 from .base_handlers import BaseHandler
 from versions.v0_1.message import BaseJRPCResponse, JRPCErrorResponse, JRPCSuccessResponse, JRPCRequest
@@ -22,20 +26,20 @@ class RegistrationHandler(BaseHandler):
         email = payload.obtrain_param('email')
 
         if login is None:
-            return self.__wrap_invalid__("login parameter must be specified")
+            return self.wrap_invalid_response("login parameter must be specified")
         if name is None:
-            return self.__wrap_invalid__("name parameter must be specified")
+            return self.wrap_invalid_response("name parameter must be specified")
         if surname is None:
-            return self.__wrap_invalid__("surname parameter must be specified")
+            return self.wrap_invalid_response("surname parameter must be specified")
         if password is None:
-            return self.__wrap_invalid__("password parameter must be specified")
+            return self.wrap_invalid_response("password parameter must be specified")
         if email is None:
-            return self.__wrap_invalid__("email parameter must be specified")
+            return self.wrap_invalid_response("email parameter must be specified")
 
         try:
             user = self.user_interactor.create(login, password, email, name, surname)
         except ValueError as e:
-            return self.__wrap_invalid__(str(e))
+            return self.wrap_invalid_response(str(e))
         except RuntimeError as e:
             msg = str(e)
             return JRPCErrorResponse(
@@ -52,20 +56,50 @@ class RegistrationHandler(BaseHandler):
             )
 
         # user must be specified
-        user_json = {
-            "id": user.id,
-            "login": user.login,
-            "email": user.email,
-            "name": user.name,
-            "surname": user.surname
-        }
+        user_json = user.json()
 
         return JRPCSuccessResponse(user_json, payload.id)
 
 
-    def __wrap_invalid__(self, message: str) -> JRPCErrorResponse:
-        return JRPCErrorResponse(
-            JRPCErrorCode.InvalidParameters.value,
-            message,
-            None
-        )
+class AuthHandler(BaseHandler):
+
+    def __init__(self, user_interactor: Callable, jwt_controller: JwtTokenController):
+        self.user_interactor = user_interactor
+        self.jwt_controller = jwt_controller
+
+    def method(self) -> str:
+        return "auth.auth"
+
+    def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
+        email = payload.obtrain_param('email')
+        password = payload.obtrain_param('password')
+
+        if email is None:
+            return self.wrap_invalid_response("email parameter must be specified")
+        if password is None:
+            return self.wrap_invalid_response("password parameter must be specified")
+
+        try:
+            user = self.user_interactor.auth(email, password)
+        except Exception as e:
+            return self.wrap_invalid_response(str(e))
+
+        if user is None:
+            return self.wrap_invalid_response("Password or email is incorrect")
+
+        base_credentials = Credentials(user.id)
+        full_credentials = self.jwt_controller.generate_full_credentials(base_credentials)
+
+
+        user_json = user.json()
+        credentials_json = {
+            "access_token": full_credentials.access_token,
+            "refresh_token": full_credentials.refresh_token
+        }
+
+        response = {
+            "user": user_json,
+            "credentials": credentials_json
+        }
+
+        return JRPCSuccessResponse(response, payload.id)

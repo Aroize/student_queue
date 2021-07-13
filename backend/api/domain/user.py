@@ -21,6 +21,15 @@ class User(Base):
     email_confirmed = Column(Boolean, default=False)
     registration_timestamp = Column(DateTime, default=datetime.utcnow)
 
+    def json(self) -> dict:
+        return {
+            "id": self.id,
+            "login": self.login,
+            "email": self.email,
+            "name": self.name,
+            "surname": self.surname
+        }
+
     def __repr__(self):
         return """User[id = {}, login = {}, password = {}, email = {}, name = {}, surname = {}, email_confirmed = {}, timestamp = {}]""".format(
             self.id,
@@ -215,6 +224,12 @@ class UserInteractor:
 
         return True
 
+    def auth(self, email: str, raw_password: str) -> Optional[User]:
+        password = sha256(raw_password.encode()).hexdigest()
+        user = self.user_repository.find_user_by_email(email)
+        if user is None or not user.email_confirmed or user.password != password:
+            return None
+        return user
 
     # TODO(): remove this hardcode, mode to some controller
     def build_verification_url(self, id, code):
