@@ -1,3 +1,4 @@
+import time
 import pathlib
 from loguru import logger
 from versions import v0_1
@@ -8,50 +9,95 @@ from security import JwtTokenController, JwtTokenControllerImpl
 from mail_service import MailSenderService
 
 
-def create_methods_dict():
-    mail_sender = MailSenderService("../tools/smtp_config.json", "./res/email.html")
-    user_interactor = UserInteractor(UserRepository(), UserEmailConfirmationRepository(), mail_sender)
+class Cleaner:
 
-    endpoints = [
-        v0_1.EchoHandler(),
-        v0_1.SecuredEchoHandler(),
-        v0_1.RegistrationHandler(user_interactor)
-    ]
-    return dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
+    PERIOD_S = 24 * 60 * 60
 
+    def __call__(self):
+        # DO CLEAR HERE
+        logger.info('Cleaner called')
 
-def create_jwt_controller() -> JwtTokenController:
-    access_secret = "../tools/certs/access_secret.json"
-    refresh_secret = "../tools/certs/refresh_secret.json"
-    return JwtTokenControllerImpl(
-        access_secret_file=access_secret,
-        refresh_secret_file=refresh_secret
-    )
+        self.schedule()
+
+    def schedule(self):
+        IOLoop.instance().add_timeout(time.time() + Cleaner.PERIOD_S, self)
 
 
-def run():
+class StudentQueueApp:
 
-    main_router_params = {
-        "methods": create_methods_dict(),
-        "jwt_controller": create_jwt_controller()
-    }
+    def __init__(self):
+        self.project_root_dir = pathlib.Path(__file__) \
+                                                .resolve() \
+                                                .parent \
+                                                .parent \
+                                                .as_posix()
 
-    urls = [
-        ("/v0.1", v0_1.RouteHandler, main_router_params),
-    ]
+    def format_tools_path(self, path: str) -> str:
+        return path.format(self.project_root_dir + "/tools")
 
-    backend_dir = pathlib.Path(__file__).resolve().parent.parent
-    static_path = pathlib.PurePath(backend_dir, 'static')
-    settings = {
-        "static_path": static_path.as_posix(),
-        "static_url_prefix": "/res/"
-    }
+    def format_root_path(self, path: str) -> str:
+        return path.format(self.project_root_dir)
 
-    app = Application(urls, **settings)
-    app.listen(5022)
-    logger.info('Server started')
-    IOLoop.instance().start()
+    def run(self):
+        self.init_endpoints()
+        self.init_static()
+
+        app = Application(self.urls, **self.settings)
+        app.listen(5022)
+        logger.info('Server started')
+
+        # SCHEDULE DB CLEANER [TODO(): set proper time]
+        cleaner = Cleaner()
+        cleaner.schedule()
+
+        IOLoop.instance().start()
+
+    def init_static(self):
+        self.settings = {
+            "static_path": self.format_root_path("{}/static"),
+            "static_url_prefix": "/res/"
+        }
+
+    def init_endpoints(self):
+        # MAIL
+
+        mail_sender = MailSenderService(
+            self.format_tools_path("{}/smtp_config.json"),
+            self.format_root_path("{}/res/email.html")
+        )
+
+        # JWT
+        access_secret = self.format_tools_path("{}/certs/access_secret.json")
+        refresh_secret = self.format_tools_path("{}/certs/refresh_secret.json")
+
+        jwt_controller = JwtTokenControllerImpl(
+            access_secret_file=access_secret,
+            refresh_secret_file=refresh_secret
+        )
+
+        # INTERACTOR
+        user_interactor = UserInteractor(UserRepository(), UserEmailConfirmationRepository(), mail_sender)
+
+        # ENDPOINTS
+        endpoints = [
+            v0_1.EchoHandler(),
+            v0_1.SecuredEchoHandler(),
+            v0_1.RegistrationHandler(user_interactor)
+        ]
+        method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
+
+
+        # FOR EXTERNAL MAPPING
+        router_params = {
+            "methods": method_mapping,
+            "jwt_controller": jwt_controller
+        }
+
+        self.urls = [
+            ("/v0.1", v0_1.RouteHandler, router_params),
+        ]
 
 
 if __name__ == '__main__':
-    run()
+    app = StudentQueueApp()
+    app.run()
