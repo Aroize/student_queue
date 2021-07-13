@@ -3,11 +3,11 @@ import random
 from hashlib import sha256
 from datetime import datetime
 from .dao import DBAccessor, Base
-from sqlalchemy.orm import relationship
 from typing import Optional, List, Callable
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
 
 # TABLE
+
 
 class User(Base):
     __tablename__ = "user"
@@ -21,8 +21,7 @@ class User(Base):
     email_confirmed = Column(Boolean, default=False)
     registration_timestamp = Column(DateTime, default=datetime.utcnow)
 
-
-    def __str__(self):
+    def __repr__(self):
         return """User[id = {}, login = {}, password = {}, email = {}, name = {}, surname = {}, email_confirmed = {}, timestamp = {}]""".format(
             self.id,
             self.login,
@@ -78,18 +77,15 @@ class UserRepository:
             session.commit()
             return user
 
-
     def select_all(self) -> List[User]:
         with self.accessor().session() as session:
             return session.query(User).all()
-
 
     def find_user_by_id(self, id: int) -> Optional[User]:
         with self.accessor().session() as session:
             return session.query(User) \
                 .filter_by(id=id) \
                 .first()
-
 
     def find_user_by_email(self, email: str) -> Optional[User]:
         with self.accessor().session() as session:
@@ -120,7 +116,6 @@ class UserEmailConfirmationRepository:
             return session.query(UserEmailConfirmation).all()
 
 
-
 # INTERACTOR
 
 class UserInteractor:
@@ -142,7 +137,6 @@ class UserInteractor:
         self.email_regex = re.compile(email_regex)
         password_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[_a-zA-Z\d]{8,15}$"
         self.password_regex = re.compile(password_regex)
-
 
     def create(
         self,
@@ -178,7 +172,6 @@ class UserInteractor:
         self.mail_service.send_verification_email(url)
 
         return user
-
 
     # TODO(): remove this hardcode, mode to some controller
     def build_verification_url(self, code):

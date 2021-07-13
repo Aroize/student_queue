@@ -1,10 +1,9 @@
+import pathlib
 from loguru import logger
 from versions import v0_1
 from domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
 from tornado.ioloop import IOLoop
-from tornado.concurrent import run_on_executor
-from concurrent.futures import ThreadPoolExecutor
-from tornado.web import Application, RequestHandler
+from tornado.web import Application
 from security import JwtTokenController, JwtTokenControllerImpl
 from mail_service import MailSenderService
 
@@ -30,7 +29,6 @@ def create_jwt_controller() -> JwtTokenController:
     )
 
 
-
 def run():
 
     main_router_params = {
@@ -38,12 +36,22 @@ def run():
         "jwt_controller": create_jwt_controller()
     }
 
-    urls = [("/v0.1", v0_1.RouteHandler, main_router_params)]
+    urls = [
+        ("/v0.1", v0_1.RouteHandler, main_router_params),
+    ]
 
-    app = Application(urls)
+    backend_dir = pathlib.Path(__file__).resolve().parent.parent
+    static_path = pathlib.PurePath(backend_dir, 'static')
+    settings = {
+        "static_path": static_path.as_posix(),
+        "static_url_prefix": "/res/"
+    }
+
+    app = Application(urls, **settings)
     app.listen(5022)
     logger.info('Server started')
     IOLoop.instance().start()
+
 
 if __name__ == '__main__':
     run()
