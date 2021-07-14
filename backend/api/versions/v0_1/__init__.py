@@ -1,5 +1,5 @@
 from .router import RouteHandler, EmailVerificationHandler
 from .handlers import EchoHandler, SecuredEchoHandler
 from .handlers import RegistrationHandler, AuthHandler, RefreshCredentialsController
-from .handlers import CreateGroupHandler
+from .handlers import CreateGroupHandler, ListGroupHandler
 from .handlers import ListUsersHandler

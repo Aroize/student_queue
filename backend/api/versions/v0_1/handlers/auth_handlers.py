@@ -1,8 +1,6 @@
 import sys
 sys.path.insert(0, "../../../../../api")
 
-import traceback
-
 from typing import Callable
 from security import Credentials, JwtTokenController
 from .base_handlers import BaseHandler, SecuredHandler

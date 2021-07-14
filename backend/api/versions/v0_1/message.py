@@ -28,10 +28,10 @@ class JRPCRequest:
 
             return True
 
-    def obtrain_param(self, param: str) -> Optional[Any]:
+    def obtrain_param(self, param: str, default = None) -> Optional[Any]:
         if param in self.params:
             return self.params[param]
-        return None
+        return default
 
     @staticmethod
     def get_id(jmsg) -> Union[int, None]:
