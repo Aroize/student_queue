@@ -88,7 +88,7 @@ class JwtTokenControllerImpl(JwtTokenController):
         if HEADER_USER_ID not in headers:
             raise RuntimeError("Credentials must contain at least user id")
 
-        user_id = headers[HEADER_USER_ID]
+        user_id = int(headers[HEADER_USER_ID])
 
         if HEADER_ACCESS_TOKEN not in headers:
             return Credentials(user_id)

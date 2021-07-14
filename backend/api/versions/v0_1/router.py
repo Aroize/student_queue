@@ -44,7 +44,12 @@ class RouteHandler(RequestHandler):
         if handler.is_secured():
             error = None
             try:
-                payload = SecuredJRPCRequest(self.request.headers, self.jwt_controller, payload)
+                payload = SecuredJRPCRequest(
+                    self.request.headers,
+                    self.jwt_controller,
+                    payload,
+                    handler.need_access_token()
+                )
             except InvalidAccessCredentials:
                 error = JRPCErrorResponse(JRPCErrorCode.AccessTokenExpired.value,
                                           "Method is secured, access token is expired or absent",
@@ -60,6 +65,7 @@ class RouteHandler(RequestHandler):
         result = handler.process(payload)
 
         return self.write(result.json)
+
 
 class EmailVerificationHandler(RequestHandler):
 

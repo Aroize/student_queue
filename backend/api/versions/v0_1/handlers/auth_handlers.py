@@ -1,10 +1,12 @@
 import sys
 sys.path.insert(0, "../../../../../api")
 
-from security import Credentials, JwtTokenController
 from typing import Callable
-from .base_handlers import BaseHandler
-from versions.v0_1.message import BaseJRPCResponse, JRPCErrorResponse, JRPCSuccessResponse, JRPCRequest
+from loguru import logger
+from security import Credentials, JwtTokenController
+from .base_handlers import BaseHandler, SecuredHandler
+from versions.v0_1.message import JRPCRequest, SecuredJRPCRequest
+from versions.v0_1.message import BaseJRPCResponse, JRPCErrorResponse, JRPCSuccessResponse
 from versions.v0_1.exceptions import JRPCErrorCode
 
 
@@ -100,6 +102,31 @@ class AuthHandler(BaseHandler):
         response = {
             "user": user_json,
             "credentials": credentials_json
+        }
+
+        return JRPCSuccessResponse(response, payload.id)
+
+
+class RefreshCredentialsController(SecuredHandler):
+
+    def __init__(self, jwt_controller: JwtTokenController):
+        self.jwt_controller = jwt_controller
+
+    def need_access_token(self) -> bool:
+        return False
+
+    def method(self) -> str:
+        return "auth.refresh_credentials"
+
+    def process(self, payload: SecuredJRPCRequest) -> BaseJRPCResponse:
+        if not self.jwt_controller.is_refresh_token_valid(payload.credentials):
+            return self.wrap_invalid_response("Refresh token is invalid or expired")
+
+        refresh_creds = self.jwt_controller.generate_full_credentials(payload.credentials)
+
+        response = {
+            "access_token": refresh_creds.access_token,
+            "refresh_token": refresh_creds.refresh_token
         }
 
         return JRPCSuccessResponse(response, payload.id)

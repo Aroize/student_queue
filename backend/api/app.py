@@ -89,7 +89,8 @@ class StudentQueueApp:
             v0_1.EchoHandler(),
             v0_1.SecuredEchoHandler(),
             v0_1.RegistrationHandler(user_interactor),
-            v0_1.AuthHandler(user_interactor, jwt_controller)
+            v0_1.AuthHandler(user_interactor, jwt_controller),
+            v0_1.RefreshCredentialsController(jwt_controller)
         ]
         method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 
