@@ -48,6 +48,7 @@ class UserEmailConfirmation(Base):
 
     id = Column(Integer, ForeignKey("user.id"), primary_key=True)
     code = Column(Integer)
+    timestamp = Column(DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return """UserEmailConfirmation[id={}, code={}]""".format(self.id, self.code)
@@ -157,11 +158,11 @@ class UserEmailConfirmationRepository:
 class UserInteractor:
 
     def __init__(
-        self,
-        user_repository: UserRepository,
-        email_confirmation: UserEmailConfirmationRepository,
-        mail_service: Callable
-        ):
+            self,
+            user_repository: UserRepository,
+            email_confirmation: UserEmailConfirmationRepository,
+            mail_service: Callable
+            ):
 
         self.user_repository = user_repository
         self.email_confirmation_repository = email_confirmation
@@ -233,7 +234,7 @@ class UserInteractor:
             raise RuntimeError("Before authorization you must confirm your email")
         if user.password != password:
             raise ValueError("Password is incorrect")
-        
+
         return user
 
     # TODO(): remove this hardcode, mode to some controller
