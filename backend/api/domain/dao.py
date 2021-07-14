@@ -15,7 +15,7 @@ class DBAccessor:
         uri = 'sqlite:///{}'.format(debug_db.as_posix())
 
         self.engine = create_engine(uri)
-        self.Session = sessionmaker(bind=self.engine)
+        self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
         Base.metadata.create_all(self.engine)
 
     def session(self):

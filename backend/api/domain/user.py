@@ -226,8 +226,14 @@ class UserInteractor:
     def auth(self, email: str, raw_password: str) -> Optional[User]:
         password = sha256(raw_password.encode()).hexdigest()
         user = self.user_repository.find_user_by_email(email)
-        if user is None or not user.email_confirmed or user.password != password:
-            return None
+
+        if user is None:
+            raise RuntimeError("No such user")
+        if not user.email_confirmed:
+            raise RuntimeError("Before authorization you must confirm your email")
+        if user.password != password:
+            raise ValueError("Password is incorrect")
+        
         return user
 
     # TODO(): remove this hardcode, mode to some controller

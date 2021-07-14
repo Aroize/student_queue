@@ -1,8 +1,9 @@
 import sys
 sys.path.insert(0, "../../../../../api")
 
+import traceback
+
 from typing import Callable
-from loguru import logger
 from security import Credentials, JwtTokenController
 from .base_handlers import BaseHandler, SecuredHandler
 from versions.v0_1.message import JRPCRequest, SecuredJRPCRequest

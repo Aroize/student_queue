@@ -1,5 +1,4 @@
 import json
-from loguru import logger
 from tornado.web import RequestHandler
 from typing import Union, Callable, Dict
 from .message import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
@@ -75,8 +74,6 @@ class EmailVerificationHandler(RequestHandler):
     def get(self):
         id = int(self.get_argument('id'))
         code = int(self.get_argument('code'))
-
-        logger.info("called verify_email with id = {} and code = {}".format(id, code))
 
         if id is None or code is None:
             self.redirect('/res/html/failed.html')
