@@ -8,6 +8,7 @@ from tornado.ioloop import IOLoop
 
 from versions import v0_1
 from domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
+from domain import GroupRepository
 from tornado.ioloop import IOLoop
 from tornado.web import Application
 from security import JwtTokenController, JwtTokenControllerImpl
@@ -114,3 +115,20 @@ class StudentQueueApp:
 if __name__ == '__main__':
     app = StudentQueueApp()
     app.run()
+    # repo = GroupRepository()
+    # repo.create("title", 1)
+    #
+    # print("add 1|2 " + str(repo.add_user(1, 2)))
+    # print("add 1|3 " + str(repo.add_user(1, 3)))
+    #
+    # print("count " + str(repo.count(1)))
+    #
+    # print("remove 1|1 " + str(repo.remove_user(1, 1)))
+    # print("remove 1|2 " + str(repo.remove_user(1, 2)))
+    #
+    # print("make_admin 1|3 " + str(repo.make_admin(1, 3)))
+    # print("remove 1|3 " + str(repo.remove_user(1, 3)))
+    #
+    # repo.delete_group(1)
+    #
+    # print(repo.count(1))

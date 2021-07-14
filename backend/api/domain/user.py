@@ -73,7 +73,7 @@ class UserRepository:
                 raise RuntimeError("User with this email already exists")
             if session.query(User).filter_by(login=login).count() > 0:
                 raise RuntimeError("User with this login already exists")
-            session.expire_on_commit = False
+
             user = User(
                 login=login,
                 password=password,
@@ -126,7 +126,6 @@ class UserEmailConfirmationRepository:
     def create(self, id: int, code: int) -> UserEmailConfirmation:
         with self.accessor().session() as session:
             session.query(UserEmailConfirmation).filter_by(id=id).delete()
-            session.expire_on_commit = False
 
             user_confirmation = UserEmailConfirmation(id=id, code=code)
             session.add(user_confirmation)
