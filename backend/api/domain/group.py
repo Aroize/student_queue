@@ -130,6 +130,7 @@ class GroupRepository:
                           .filter(GroupMember.group_id == group_id) \
                           .count()
 
+
     def make_admin(
         self,
         group_id: int,
