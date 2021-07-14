@@ -1,7 +1,8 @@
 from typing import Dict, Union, Callable, Any, Optional
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
 
-################################### REQUESTS ###################################
+# ################################## REQUESTS ###################################
+
 
 class JRPCRequest:
     """Validates, parses and serializes jRPC request"""
@@ -53,7 +54,7 @@ class SecuredJRPCRequest(JRPCRequest):
         validator: Callable,
         other: JRPCRequest,
         need_valid_access_token: bool = True
-        ):
+    ):
         self.method = other.method
         self.params = other.params
         self.id = other.id
@@ -65,7 +66,7 @@ class SecuredJRPCRequest(JRPCRequest):
 
         self.credentials = credentials
 
-################################################################################
+# ###############################################################################
 
 
 class BaseJRPCResponse:
@@ -115,4 +116,4 @@ class JRPCErrorResponse(BaseJRPCResponse):
         return self.error
 
 
-__all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse", "JRPCFailedResponse"]
+__all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse"]

@@ -19,7 +19,6 @@ class MailSenderService:
         with open(template_path) as template:
             self.template = template.read()
 
-
     def send_verification_email(self, url: str):
         server = smtplib.SMTP_SSL(self.server, self.port)
 

@@ -7,6 +7,7 @@ from jwt.utils import get_time_from_int, get_int_from_datetime
 
 # Data classes for credentials
 
+
 class Credentials:
 
     def __init__(self, id: int):
@@ -27,6 +28,7 @@ class RefreshCredentials(AccessCredentials):
         self.refresh_token = refresh_token
 
 # Interface for jwt generator and validator
+
 
 class JwtTokenController:
 
@@ -53,7 +55,6 @@ class NowDateTimeProvider:
 
 class JwtTokenControllerImpl(JwtTokenController):
 
-
     def __init__(
             self,
             access_secret: AbstractJWKBase = None,
@@ -63,7 +64,7 @@ class JwtTokenControllerImpl(JwtTokenController):
             access_secret_json: dict = None,
             refresh_secret_json: dict = None,
             datetime_provider: NowDateTimeProvider = NowDateTimeProvider()
-        ):
+    ):
 
         self.datetime_provider = datetime_provider
 
@@ -83,7 +84,6 @@ class JwtTokenControllerImpl(JwtTokenController):
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
 
-
     def retreive_credentials(self, headers: dict) -> Credentials:
         if HEADER_USER_ID not in headers:
             raise RuntimeError("Credentials must contain at least user id")
@@ -101,7 +101,6 @@ class JwtTokenControllerImpl(JwtTokenController):
         refresh_token = headers[HEADER_REFRESH_TOKEN]
         return RefreshCredentials(refresh_token, access_token, user_id)
 
-
     def is_access_token_valid(self, credentials: Credentials) -> bool:
         if not isinstance(credentials, AccessCredentials):
             return False
@@ -111,7 +110,6 @@ class JwtTokenControllerImpl(JwtTokenController):
             return False
 
         return jwt['sub'] == credentials.id
-
 
     def is_refresh_token_valid(self, credentials: Credentials) -> bool:
         if not isinstance(credentials, RefreshCredentials):
@@ -134,13 +132,11 @@ class JwtTokenControllerImpl(JwtTokenController):
 
         return access_jwt['rcd'] == refresh_jwt['sub']
 
-
     def generate_full_credentials(self, credentials: Credentials) -> RefreshCredentials:
         rcd = randint(0, 1024)
         access_token = self.__generate_access_token__(credentials.id, rcd)
         refresh_token = self.__generate_refresh_token__(rcd)
         return RefreshCredentials(refresh_token, access_token, credentials.id)
-
 
     def __parse_jwt__(self, token: str, key: AbstractJWKBase) -> dict:
         instance = JWT()
@@ -149,7 +145,6 @@ class JwtTokenControllerImpl(JwtTokenController):
         except Exception as e:
             return None
 
-
     def __is_token_expired__(self, token: dict) -> bool:
         time = token['exp']
         now = self.datetime_provider.now()
@@ -157,7 +152,6 @@ class JwtTokenControllerImpl(JwtTokenController):
         exp = get_time_from_int(time)
 
         return now >= exp
-
 
     def __generate_access_token__(self, id: int, rcd: int) -> str:
         exp = get_int_from_datetime(

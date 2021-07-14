@@ -31,16 +31,14 @@ class User(Base):
         }
 
     def __repr__(self):
-        return """User[id = {}, login = {}, password = {}, email = {}, name = {}, surname = {}, email_confirmed = {}, timestamp = {}]""".format(
-            self.id,
-            self.login,
-            self.password,
-            self.email,
-            self.name,
-            self.surname,
-            self.email_confirmed,
-            self.registration_timestamp
-        )
+        return f'User[id = {self.id}, ' \
+               f'login = {self.login}, ' \
+               f'password = {self.password}, ' \
+               f'email = {self.email}, ' \
+               f'name = {self.name}, ' \
+               f'surname = {self.surname}, ' \
+               f'email_confirmed = {self.email_confirmed}, ' \
+               f'timestamp = {self.registration_timestamp}]'
 
 
 class UserEmailConfirmation(Base):
@@ -68,7 +66,7 @@ class UserRepository:
         email: str,
         name: str,
         surname: str
-        ) -> User:
+    ) -> User:
         with self.accessor().session() as session:
             if session.query(User).filter_by(email=email).count() > 0:
                 raise RuntimeError("User with this email already exists")
@@ -147,7 +145,6 @@ class UserEmailConfirmationRepository:
                 .delete()
             session.commit()
 
-
     def select_all(self) -> List[UserEmailConfirmation]:
         with self.accessor().session() as session:
             return session.query(UserEmailConfirmation).all()
@@ -162,7 +159,7 @@ class UserInteractor:
             user_repository: UserRepository,
             email_confirmation: UserEmailConfirmationRepository,
             mail_service: Callable
-            ):
+    ):
 
         self.user_repository = user_repository
         self.email_confirmation_repository = email_confirmation
@@ -170,7 +167,11 @@ class UserInteractor:
 
         login_regex = r"[A-Za-z0-9_]{4,15}"
         self.login_regex = re.compile(login_regex)
-        email_regex = r"(?:[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
+        email_regex = r"(?:[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c" \
+                      r"\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9]" \
+                      r"(?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|" \
+                      r"1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*" \
+                      r"[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])"
         self.email_regex = re.compile(email_regex)
         password_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[_a-zA-Z\d]{8,15}$"
         self.password_regex = re.compile(password_regex)
@@ -182,7 +183,7 @@ class UserInteractor:
         email: str,
         name: str,
         surname: str
-        ) -> User:
+    ) -> User:
         name = name.strip()
         surname = surname.strip()
 
@@ -196,7 +197,8 @@ class UserInteractor:
             raise ValueError("Login length must be greater than 3, less than 16, no special characters allowed")
 
         if not self.password_regex.match(password):
-            raise ValueError("Password must be minimum 8 and maximum 16 characters and contains at least one uppercase letter, one lowercase letter and one number")
+            raise ValueError("Password must be minimum 8 and maximum 16 characters and contains at "
+                             "least one uppercase letter, one lowercase letter and one number")
 
         if not self.email_regex.match(email):
             raise ValueError("Email format isn't supported")

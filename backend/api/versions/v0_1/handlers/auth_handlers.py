@@ -1,8 +1,6 @@
 import sys
 sys.path.insert(0, "../../../../../api")
 
-import traceback
-
 from typing import Callable
 from security import Credentials, JwtTokenController
 from .base_handlers import BaseHandler, SecuredHandler
@@ -16,10 +14,8 @@ class RegistrationHandler(BaseHandler):
     def __init__(self, user_interactor: Callable):
         self.user_interactor = user_interactor
 
-
     def method(self) -> str:
         return "auth.register"
-
 
     def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
         login = payload.obtrain_param('login')
@@ -92,7 +88,6 @@ class AuthHandler(BaseHandler):
 
         base_credentials = Credentials(user.id)
         full_credentials = self.jwt_controller.generate_full_credentials(base_credentials)
-
 
         user_json = user.json()
         credentials_json = {

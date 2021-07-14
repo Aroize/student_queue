@@ -34,10 +34,10 @@ class StudentQueueApp:
 
     def __init__(self):
         self.project_root_dir = pathlib.Path(__file__) \
-                                                .resolve() \
-                                                .parent \
-                                                .parent \
-                                                .as_posix()
+                                       .resolve() \
+                                       .parent \
+                                       .parent \
+                                       .as_posix()
 
     def format_tools_path(self, path: str) -> str:
         return path.format(self.project_root_dir + "/tools")
@@ -99,8 +99,7 @@ class StudentQueueApp:
             v0_1.RefreshCredentialsController(jwt_controller),
             v0_1.CreateGroupHandler(group_interactor)
         ]
-        method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
-
+        method_mapping = {endpoint.method(): endpoint for endpoint in endpoints}
 
         # FOR EXTERNAL MAPPING
         router_params = {

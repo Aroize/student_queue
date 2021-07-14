@@ -12,7 +12,6 @@ class Group(Base):
     title = Column(String)
     admin = Column(Integer, ForeignKey("user.id"))
 
-
     @property
     def values(self):
         return {
@@ -57,7 +56,7 @@ class GroupRepository:
         self,
         title: str,
         admin_id: int
-        ) -> Optional[Group]:
+    ) -> Optional[Group]:
         with self.accessor().session() as session:
             group = Group(title=title, admin=admin_id)
 
@@ -75,7 +74,7 @@ class GroupRepository:
         self,
         group_id: int,
         user_id: int
-        ) -> bool:
+    ) -> bool:
         with self.accessor().session() as session:
             is_member = session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
@@ -95,7 +94,7 @@ class GroupRepository:
         self,
         group_id: int,
         user_id: int
-        ) -> bool:
+    ) -> bool:
         with self.accessor().session() as session:
             group = session.query(Group) \
                 .filter(Group.id == group_id) \
@@ -112,7 +111,7 @@ class GroupRepository:
     def delete_group(
         self,
         group_id: int
-        ):
+    ):
         with self.accessor().session() as session:
             session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
@@ -125,17 +124,17 @@ class GroupRepository:
     def count(
         self,
         group_id: int
-        ) -> int:
+    ) -> int:
         with self.accessor().session() as session:
             return session.query(GroupMember) \
-                        .filter(GroupMember.group_id == group_id) \
-                        .count()
+                          .filter(GroupMember.group_id == group_id) \
+                          .count()
 
     def make_admin(
         self,
         group_id: int,
         new_admin: int
-        ) -> bool:
+    ) -> bool:
         with self.accessor().session() as session:
             new_admin_is_member = session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
@@ -164,13 +163,12 @@ class GroupRepository:
 class GroupInteractor:
 
     def __init__(
-        self,
-        user_repository: Callable,
-        group_repository: GroupRepository
-        ):
+            self,
+            user_repository: Callable,
+            group_repository: GroupRepository
+    ):
         self.user_repository = user_repository
         self.group_repository = group_repository
-
 
     def create(self, title: str, admin_id: int) -> Optional[Group]:
 

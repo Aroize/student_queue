@@ -1,7 +1,6 @@
 from enum import Enum
 
 
-
 class JRPCErrorCode(Enum):
     """According to jRPC specification"""
     ParseError = -32700
@@ -16,12 +15,13 @@ class JRPCErrorCode(Enum):
     EntityAlreadyExists = 3
 
 
-
 class InvalidRequestException(Exception):
     pass
 
+
 class InvalidAccessCredentials(Exception):
     pass
+
 
 class InvalidParametersException(Exception):
     pass
