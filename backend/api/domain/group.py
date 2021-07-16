@@ -54,6 +54,12 @@ class GroupRepository:
                 .update(group.values)
             session.commit()
 
+    def find_by_id(self, group_id: int) -> Optional[Group]:
+        with self.accessor().session() as session:
+            return session.query(Group) \
+                .filter(Group.id == group_id) \
+                .first()
+
     def create(
         self,
         title: str,
@@ -189,6 +195,27 @@ class GroupRepository:
                 .filter(GroupMember.user_id == user_id) \
                 .count() > 0
 
+    def member_in(
+        self,
+        user_id: int,
+        offset: int,
+        count: int
+        ) -> List[GroupMember]:
+        with self.accessor().session() as session:
+            return session.query(GroupMember) \
+                .filter(GroupMember.user_id == user_id) \
+                .offset(offset) \
+                .limit(count) \
+                .all()
+
+    def count_member_in(
+        self,
+        user_id: int
+        ) -> int:
+        with self.accessor().session() as session:
+            return session.query(GroupMember) \
+                .filter(GroupMember.user_id == user_id) \
+                .count()
 
 
 # INTERACTOR
@@ -216,6 +243,7 @@ class GroupInteractor:
         group = self.group_repository.create(title, admin.id)
         return group
 
+
     def is_member(
         self,
         group_id: int,
@@ -239,3 +267,21 @@ class GroupInteractor:
         count = self.group_repository.count(group_id)
 
         return (count, users)
+
+    def list_user_groups(
+        self,
+        user_id: int,
+        offset: int,
+        count: int
+        ) -> Union[int, List[Group]]:
+        member_in = self.group_repository.member_in(user_id, offset, count)
+
+        result = []
+
+        for entry in member_in:
+            group = self.group_repository.find_by_id(entry.group_id)
+            if group is not None:
+                group_size = self.group_repository.count(group.id)
+                result.append((group_size, group))
+        count = self.group_repository.count_member_in(user_id)
+        return (count, result)

@@ -12,10 +12,6 @@ class CreateGroupHandler(SecuredHandler):
     def method(self) -> str:
         return "group.create"
 
-    # FOR DEBUG ONLY
-    def need_access_token(self) -> bool:
-        return False
-
     def process(self, payload: SecuredJRPCRequest) -> BaseJRPCResponse:
         user_id = payload.credentials.id
 
@@ -37,11 +33,7 @@ class ListGroupHandler(SecuredHandler):
         self.group_interactor = group_interactor
 
     def method(self) -> str:
-        return "group.list"
-
-    # FOR DEBUG ONLY
-    def need_access_token(self) -> bool:
-        return False
+        return "group.members"
 
     def process(self, payload: SecuredJRPCRequest) -> BaseJRPCResponse:
         group_id = payload.obtrain_param('id')
@@ -66,6 +58,32 @@ class ListGroupHandler(SecuredHandler):
         response = {
             "count": count,
             "members": list(map(lambda user: user.json(), members))
+        }
+
+        return JRPCSuccessResponse(response, payload.id)
+
+
+class ListUserGroupsHandler(SecuredHandler):
+
+    def __init__(self, group_interactor: Callable):
+        self.group_interactor = group_interactor
+
+    def method(self) -> str:
+        return "group.list"
+
+    def process(self, payload: SecuredJRPCRequest) -> BaseJRPCResponse:
+        user_id = payload.credentials.id
+
+        offset = payload.obtrain_param('offset', 0)
+        count = payload.obtrain_param('count', 20)
+
+        count, groups = self.group_interactor.list_user_groups(user_id, offset, count)
+
+        groups = list(map(lambda group: {**group[1].values, "size": group[0]}, groups))
+
+        response = {
+            "count": count,
+            "groups": groups
         }
 
         return JRPCSuccessResponse(response, payload.id)

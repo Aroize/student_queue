@@ -98,7 +98,9 @@ class StudentQueueApp:
             v0_1.AuthHandler(user_interactor, jwt_controller),
             v0_1.RefreshCredentialsController(jwt_controller),
             v0_1.CreateGroupHandler(group_interactor),
-            v0_1.ListGroupHandler(group_interactor)
+            v0_1.ListGroupHandler(group_interactor),
+            v0_1.ListUserGroupsHandler(group_interactor),
+            v0_1.GetUserHandler(user_repository)
         ]
         method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
 

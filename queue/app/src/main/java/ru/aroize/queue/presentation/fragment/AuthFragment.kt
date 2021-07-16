@@ -90,9 +90,7 @@ class AuthFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val loading = Observer<Boolean> {
-
-        }
+        val loading = Observer<Boolean> {}
 
         val auth = Observer<User> {
             (activity as MainActivity).openProfilePage(it.id)

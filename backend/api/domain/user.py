@@ -4,13 +4,17 @@ from hashlib import sha256
 from datetime import datetime
 from .dao import DBAccessor, Base
 from typing import Optional, List, Callable
-from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
+from sqlalchemy import Column, String, Integer, SmallInteger, DateTime, Boolean, ForeignKey
 
 # TABLE
 
 
 class User(Base):
     __tablename__ = "user"
+
+    PRIVACY_MASK            = 0b11
+    INVITE_FROM_ANYBODY     = 0b01
+    INVITE_FROM_FRIEND      = 0b10
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     login = Column(String)
@@ -20,6 +24,13 @@ class User(Base):
     surname = Column(String)
     email_confirmed = Column(Boolean, default=False)
     registration_timestamp = Column(DateTime, default=datetime.utcnow)
+    privacy_bits = Column(SmallInteger, default=PRIVACY_MASK)
+
+    def can_anybody_invite(self) -> bool:
+        return (self.privacy_bits & INVITE_FROM_ANYBODY) == 1
+
+    def can_friend_invite(self) -> bool:
+        return ((self.privacy_bits & INVITE_FROM_FRIEND) >> 1) == 1
 
     def json(self) -> dict:
         return {
@@ -233,7 +244,7 @@ class UserInteractor:
             raise RuntimeError("Before authorization you must confirm your email")
         if user.password != password:
             raise ValueError("Password is incorrect")
-        
+
         return user
 
     # TODO(): remove this hardcode, mode to some controller
