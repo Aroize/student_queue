@@ -10,3 +10,5 @@ rootProject.name = "queue"
 include ':app'
 include ':network'
 include ':prefs'
+include ':recycler'
+include ':utils'

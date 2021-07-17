@@ -37,12 +37,16 @@ dependencies {
 
     implementation project(":network")
     implementation project(":prefs")
+    implementation project(":recycler")
+    implementation project(":utils")
 
     def lifecycle_version = "2.4.0-alpha02"
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
     implementation 'androidx.fragment:fragment-ktx:1.3.5'
+
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'io.reactivex.rxjava3:rxjava:3.0.7'

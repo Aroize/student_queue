@@ -20,7 +20,7 @@ class MailSenderService:
             self.template = template.read()
 
 
-    def send_verification_email(self, url: str):
+    def send_verification_email(self, to: str, url: str):
         server = smtplib.SMTP_SSL(self.server, self.port)
 
         server.connect(self.server, self.port)
@@ -31,6 +31,6 @@ class MailSenderService:
         attach = MIMEText(self.template.replace(MailSenderService.TAG, url), 'html', 'utf-8')
         msg.attach(attach)
 
-        server.sendmail(self.mail, ["gipermonk@bk.ru"], msg.as_string())
+        server.sendmail(self.mail, [to], msg.as_string())
 
         server.quit()

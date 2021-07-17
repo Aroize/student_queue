@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import ru.aroize.queue.presentation.fragment.AuthFragment
-import ru.aroize.queue.presentation.fragment.ProfileFragment
-import ru.aroize.queue.presentation.fragment.RegisterFragment
-import ru.aroize.queue.presentation.fragment.SplashFragment
+import ru.aroize.queue.presentation.fragment.*
+import ru.aroize.queue.presentation.fragment.group.GroupsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,7 +23,13 @@ class MainActivity : AppCompatActivity() {
         bottomNavigation.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.schedule -> { true }
-                R.id.groups -> { true }
+                R.id.groups -> {
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                        .replace(R.id.fragment_container, GroupsFragment())
+                        .commit()
+                    true
+                }
                 R.id.profile -> {
                     true
                 }

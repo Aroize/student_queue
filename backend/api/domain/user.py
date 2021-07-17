@@ -217,7 +217,7 @@ class UserInteractor:
         code = random.randint(100000, 999999)
         confirmation = self.email_confirmation_repository.create(user.id, code)
         url = self.build_verification_url(confirmation.id, confirmation.code)
-        self.mail_service.send_verification_email(url)
+        self.mail_service.send_verification_email(email, url)
 
         return user
 
