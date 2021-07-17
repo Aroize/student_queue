@@ -29,8 +29,9 @@ class SecuredHandler(BaseHandler):
     def is_secured(self) -> bool:
         return True
 
+    # FALSE IS FOR DEBUG ONLY
     def need_access_token(self) -> bool:
-        return True
+        return False
 
 
 class EchoHandler(BaseHandler):

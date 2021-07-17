@@ -12,6 +12,10 @@ from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
 class User(Base):
     __tablename__ = "user"
 
+    PRIVACY_MASK            = 0b11
+    INVITE_FROM_ANYBODY     = 0b01
+    INVITE_FROM_FRIEND      = 0b10
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     login = Column(String)
     password = Column(String)
@@ -20,6 +24,13 @@ class User(Base):
     surname = Column(String)
     email_confirmed = Column(Boolean, default=False)
     registration_timestamp = Column(DateTime, default=datetime.utcnow)
+    privacy_bits = Column(SmallInteger, default=PRIVACY_MASK)
+
+    def can_anybody_invite(self) -> bool:
+        return (self.privacy_bits & INVITE_FROM_ANYBODY) == 1
+
+    def can_friend_invite(self) -> bool:
+        return ((self.privacy_bits & INVITE_FROM_FRIEND) >> 1) == 1
 
     def json(self) -> dict:
         return {
@@ -213,7 +224,7 @@ class UserInteractor:
         code = random.randint(100000, 999999)
         confirmation = self.email_confirmation_repository.create(user.id, code)
         url = self.build_verification_url(confirmation.id, confirmation.code)
-        self.mail_service.send_verification_email(url)
+        self.mail_service.send_verification_email(email, url)
 
         return user
 

@@ -97,7 +97,10 @@ class StudentQueueApp:
             v0_1.RegistrationHandler(user_interactor),
             v0_1.AuthHandler(user_interactor, jwt_controller),
             v0_1.RefreshCredentialsController(jwt_controller),
-            v0_1.CreateGroupHandler(group_interactor)
+            v0_1.CreateGroupHandler(group_interactor),
+            v0_1.ListGroupHandler(group_interactor),
+            v0_1.ListUserGroupsHandler(group_interactor),
+            v0_1.GetUserHandler(user_repository)
         ]
         method_mapping = {endpoint.method(): endpoint for endpoint in endpoints}
 

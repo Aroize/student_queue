@@ -1,5 +1,6 @@
 from .dao import DBAccessor, Base
-from typing import Optional, List, Callable
+from .user import User, UserRepository
+from typing import Optional, List, Callable, Union
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, PrimaryKeyConstraint
 
 # Tables
@@ -51,6 +52,12 @@ class GroupRepository:
                 .filter(Group.id == group.id) \
                 .update(group.values)
             session.commit()
+
+    def find_by_id(self, group_id: int) -> Optional[Group]:
+        with self.accessor().session() as session:
+            return session.query(Group) \
+                .filter(Group.id == group_id) \
+                .first()
 
     def create(
         self,
@@ -158,6 +165,58 @@ class GroupRepository:
 
             return True
 
+    def members(
+        self,
+        group_id: int,
+        offset: int,
+        count: int
+        ) -> Optional[List[GroupMember]]:
+        with self.accessor().session() as session:
+            group_exists = session.query(Group) \
+                .filter(Group.id == group_id) \
+                .count() > 0
+            if not group_exists:
+                return None
+
+            return session.query(GroupMember) \
+                .filter(GroupMember.group_id == group_id) \
+                .offset(offset) \
+                .limit(count) \
+                .all()
+
+    def is_member(
+        self,
+        group_id: int,
+        user_id: int
+        ) -> bool:
+        with self.accessor().session() as session:
+            return session.query(GroupMember) \
+                .filter(GroupMember.group_id == group_id) \
+                .filter(GroupMember.user_id == user_id) \
+                .count() > 0
+
+    def member_in(
+        self,
+        user_id: int,
+        offset: int,
+        count: int
+        ) -> List[GroupMember]:
+        with self.accessor().session() as session:
+            return session.query(GroupMember) \
+                .filter(GroupMember.user_id == user_id) \
+                .offset(offset) \
+                .limit(count) \
+                .all()
+
+    def count_member_in(
+        self,
+        user_id: int
+        ) -> int:
+        with self.accessor().session() as session:
+            return session.query(GroupMember) \
+                .filter(GroupMember.user_id == user_id) \
+                .count()
+
 
 # INTERACTOR
 
@@ -182,3 +241,46 @@ class GroupInteractor:
 
         group = self.group_repository.create(title, admin.id)
         return group
+
+
+    def is_member(
+        self,
+        group_id: int,
+        user_id: int
+        ) -> bool:
+        return self.group_repository.is_member(group_id, user_id)
+
+
+    def list_group(
+        self,
+        group_id: int,
+        offset: int,
+        count: int
+        ) -> Union[int, List[User]]:
+        members = self.group_repository.members(group_id, offset, count)
+        if members is None:
+            raise ValueError("No such group")
+
+        member_mapper = lambda member: self.user_repository.find_user_by_id(member.user_id)
+        users = list(map(member_mapper, members))
+        count = self.group_repository.count(group_id)
+
+        return (count, users)
+
+    def list_user_groups(
+        self,
+        user_id: int,
+        offset: int,
+        count: int
+        ) -> Union[int, List[Group]]:
+        member_in = self.group_repository.member_in(user_id, offset, count)
+
+        result = []
+
+        for entry in member_in:
+            group = self.group_repository.find_by_id(entry.group_id)
+            if group is not None:
+                group_size = self.group_repository.count(group.id)
+                result.append((group_size, group))
+        count = self.group_repository.count_member_in(user_id)
+        return (count, result)

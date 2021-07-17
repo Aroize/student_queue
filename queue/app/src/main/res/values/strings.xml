@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">queue</string>
+    <string name="email_input_field">Email</string>
+    <string name="password_input_field">Password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_up">Sign up</string>
+    <string name="empty_email">Email can\'t be empty</string>
+    <string name="empty_password">Password can\'t be empty</string>
+    <string name="schedule">Schedule</string>
+    <string name="groups">Groups</string>
+    <string name="profile">Profile</string>
+    <string name="login_input_field">Login</string>
+    <string name="password_repeat_field">Repeat password</string>
+    <string name="name_input_field">Name</string>
+    <string name="surname_input_field">Surname</string>
+    <string name="login_is_blank">Login can\'t be empty or blank</string>
+    <string name="password_match">Passwords must match</string>
+    <string name="empty_name">Name can\'t be empty</string>
+    <string name="empty_surname">Surname can\'t be empty</string>
+    <string name="your_groups">Your groups</string>
+    <string name="create_group">Create group</string>
+    <string name="group_title">Group title</string>
+</resources>

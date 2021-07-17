@@ -32,7 +32,7 @@ class JRPCRequest:
     def _obtain_typed_param(self, param: str, param_type: Type) -> Optional[Any]:
         if param in self.params and isinstance(self.params[param], param_type):
             return self.params[param]
-        return None
+        return default
 
     def obtrain_str(self, param: str) -> Optional[str]:
         return self._obtain_typed_param(param, str)
