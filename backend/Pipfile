@@ -8,6 +8,7 @@ tornado = "*"
 loguru = "*"
 jwt = "*"
 sqlalchemy = "*"
+pycodestyle = "*"
 
 [dev-packages]
 

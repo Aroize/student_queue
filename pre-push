@@ -11,14 +11,16 @@ fi
 
 # Run lint
 LINT_ERRORS_COUNT=$(pycodestyle --max-line-length=120 \
-                                --ignore=E221,E272,E402 \
+                                --ignore=E127,E221,E272,E402 \
                                 --filename=$(find $CURRENT_DIR -name "*.py") | wc -l)
 
 if [[ "$LINT_ERRORS_COUNT" -gt 0 ]]; then
   pycodestyle --max-line-length=120 \
-              --ignore=E221,E272,E402 \
+              --ignore=E127,E221,E272,E402 \
               --filename=$(find $CURRENT_DIR -name "*.py")
   exit 1
+else
+  echo "Lint ok"
 fi
 
 exit 0
