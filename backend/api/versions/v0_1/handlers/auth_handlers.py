@@ -18,11 +18,11 @@ class RegistrationHandler(BaseHandler):
         return "auth.register"
 
     def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
-        login = payload.obtrain_param('login')
-        name = payload.obtrain_param('name')
-        surname = payload.obtrain_param('surname')
-        password = payload.obtrain_param('password')
-        email = payload.obtrain_param('email')
+        login = payload.obtrain_str('login')
+        name = payload.obtrain_str('name')
+        surname = payload.obtrain_str('surname')
+        password = payload.obtrain_str('password')
+        email = payload.obtrain_str('email')
 
         if login is None:
             return self.wrap_invalid_response("login parameter must be specified")
@@ -70,21 +70,21 @@ class AuthHandler(BaseHandler):
         return "auth.auth"
 
     def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
-        email = payload.obtrain_param('email')
-        password = payload.obtrain_param('password')
+        login_email = payload.obtrain_str('login')
+        password = payload.obtrain_str('password')
 
-        if email is None:
-            return self.wrap_invalid_response("email parameter must be specified")
+        if login_email is None:
+            return self.wrap_invalid_response("login parameter must be specified")
         if password is None:
             return self.wrap_invalid_response("password parameter must be specified")
 
         try:
-            user = self.user_interactor.auth(email, password)
+            user = self.user_interactor.auth(login_email, password)
         except Exception as e:
             return self.wrap_invalid_response(str(e))
 
         if user is None:
-            return self.wrap_invalid_response("Password or email is incorrect")
+            return self.wrap_invalid_response("Password or login is incorrect")
 
         base_credentials = Credentials(user.id)
         full_credentials = self.jwt_controller.generate_full_credentials(base_credentials)

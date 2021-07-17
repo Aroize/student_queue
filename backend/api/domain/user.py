@@ -3,7 +3,7 @@ import random
 from hashlib import sha256
 from datetime import datetime
 from .dao import DBAccessor, Base
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Any
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey
 
 # TABLE
@@ -104,17 +104,21 @@ class UserRepository:
         with self.accessor().session() as session:
             return session.query(User).all()
 
-    def find_user_by_id(self, id: int) -> Optional[User]:
+    def _find_user_by_unique_param(self, param_name: str, param_value: Any) -> Optional[User]:
+        param = {param_name: param_value}
         with self.accessor().session() as session:
             return session.query(User) \
-                .filter_by(id=id) \
+                .filter_by(**param) \
                 .first()
 
+    def find_user_by_id(self, id: int) -> Optional[User]:
+        return self._find_user_by_unique_param('id', id)
+
     def find_user_by_email(self, email: str) -> Optional[User]:
-        with self.accessor().session() as session:
-            return session.query(User) \
-                .filter_by(email=email) \
-                .first()
+        return self._find_user_by_unique_param('email', email)
+
+    def find_user_by_login(self, login: str) -> Optional[User]:
+        return self._find_user_by_unique_param('login', login)
 
 
 class UserEmailConfirmationRepository:
@@ -226,9 +230,10 @@ class UserInteractor:
 
         return True
 
-    def auth(self, email: str, raw_password: str) -> Optional[User]:
+    def auth(self, login_email: str, raw_password: str) -> Optional[User]:
         password = sha256(raw_password.encode()).hexdigest()
-        user = self.user_repository.find_user_by_email(email)
+        user = self.user_repository.find_user_by_email(login_email) or \
+               self.user_repository.find_user_by_login(login_email)
 
         if user is None:
             raise RuntimeError("No such user")

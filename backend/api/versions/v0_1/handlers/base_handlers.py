@@ -20,6 +20,9 @@ class BaseHandler:
             None
         )
 
+    def __repr__(self):
+        return f"Endpoint {self.method()}"
+
 
 class SecuredHandler(BaseHandler):
 

@@ -1,4 +1,4 @@
-from typing import Dict, Union, Callable, Any, Optional
+from typing import Dict, Union, Callable, Any, Optional, Type
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
 
 # ################################## REQUESTS ###################################
@@ -29,10 +29,22 @@ class JRPCRequest:
 
             return True
 
-    def obtrain_param(self, param: str) -> Optional[Any]:
-        if param in self.params:
+    def _obtain_typed_param(self, param: str, param_type: Type) -> Optional[Any]:
+        if param in self.params and isinstance(self.params[param], param_type):
             return self.params[param]
         return None
+
+    def obtrain_str(self, param: str) -> Optional[str]:
+        return self._obtain_typed_param(param, str)
+
+    def obtain_int(self, param: str) -> Optional[int]:
+        return self._obtain_typed_param(param, int)
+
+    def obtain_float(self, param: str) -> Optional[float]:
+        return self._obtain_typed_param(param, float)
+
+    def obtain_bool(self, param: str) -> Optional[bool]:
+        return self._obtain_typed_param(param, bool)
 
     @staticmethod
     def get_id(jmsg) -> Union[int, None]:

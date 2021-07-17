@@ -116,6 +116,8 @@ class StudentQueueApp:
             ("/verify_email", v0_1.EmailVerificationHandler, email_params)
         ]
 
+        logger.info("Endpoints:\n\t" + "\n\t".join([str(endpoint) for endpoint in endpoints]))
+
 
 if __name__ == '__main__':
     app = StudentQueueApp()
