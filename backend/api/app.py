@@ -34,10 +34,10 @@ class StudentQueueApp:
 
     def __init__(self):
         self.project_root_dir = pathlib.Path(__file__) \
-                                                .resolve() \
-                                                .parent \
-                                                .parent \
-                                                .as_posix()
+                                       .resolve() \
+                                       .parent \
+                                       .parent \
+                                       .as_posix()
 
     def format_tools_path(self, path: str) -> str:
         return path.format(self.project_root_dir + "/tools")
@@ -102,8 +102,7 @@ class StudentQueueApp:
             v0_1.ListUserGroupsHandler(group_interactor),
             v0_1.GetUserHandler(user_repository)
         ]
-        method_mapping = dict(map(lambda endpoint: (endpoint.method(), endpoint), endpoints))
-
+        method_mapping = {endpoint.method(): endpoint for endpoint in endpoints}
 
         # FOR EXTERNAL MAPPING
         router_params = {
@@ -119,6 +118,8 @@ class StudentQueueApp:
             ("/v0.1", v0_1.RouteHandler, router_params),
             ("/verify_email", v0_1.EmailVerificationHandler, email_params)
         ]
+
+        logger.info("Endpoints:\n\t" + "\n\t".join([str(endpoint) for endpoint in endpoints]))
 
 
 if __name__ == '__main__':

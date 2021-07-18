@@ -3,10 +3,17 @@ sys.path.insert(0, "../../api")
 
 import json
 import unittest
-from keys import *
-from security import *
-from datetime import datetime, timezone, timedelta
-from jwt import JWT, jwk_from_dict
+from keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
+from security import (
+    NowDateTimeProvider,
+    JwtTokenController,
+    JwtTokenControllerImpl,
+    Credentials,
+    AccessCredentials,
+    RefreshCredentials
+)
+from datetime import datetime, timedelta
+from jwt import jwk_from_dict
 
 access_path = "backend/tools/certs/access_secret.json"
 refresh_path = "backend/tools/certs/refresh_secret.json"
@@ -26,6 +33,7 @@ def create_jwt_controller() -> JwtTokenController:
         access_secret_file=access_path,
         refresh_secret_file=refresh_path
     )
+
 
 def create_fake_jwt_controller(timedelta: timedelta) -> JwtTokenController:
     return JwtTokenControllerImpl(
@@ -101,7 +109,6 @@ class SecurityTests(unittest.TestCase):
         self.assertEquals(creds.access_token, fake_access_token)
         self.assertEquals(creds.refresh_token, fake_refresh_token)
 
-
     def test_generating_token(self):
         controller = create_jwt_controller()
 
@@ -111,7 +118,6 @@ class SecurityTests(unittest.TestCase):
         self.assertTrue(controller.is_access_token_valid(fake_refresh_credentials))
         self.assertTrue(controller.is_refresh_token_valid(fake_refresh_credentials))
 
-
     def test_access_token_expiration(self):
 
         expired_controller = create_fake_jwt_controller(timedelta(minutes=20))
@@ -120,7 +126,6 @@ class SecurityTests(unittest.TestCase):
 
         controller = create_jwt_controller()
         self.assertFalse(controller.is_access_token_valid(expired_credentials))
-
 
     def test_refresh_token_expiration(self):
         expired_controller = create_fake_jwt_controller(timedelta(weeks=3))

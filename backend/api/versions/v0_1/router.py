@@ -8,11 +8,9 @@ from .exceptions import JRPCErrorCode, InvalidParametersException
 
 class RouteHandler(RequestHandler):
 
-
     def initialize(self, methods: Dict[str, Callable], jwt_controller: Callable):
         self.methods = methods
         self.jwt_controller = jwt_controller
-
 
     def post(self):
         orig_payload = json.loads(self.request.body)

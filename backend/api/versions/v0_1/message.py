@@ -1,7 +1,8 @@
-from typing import Dict, Union, Callable, Any, Optional
+from typing import Dict, Union, Callable, Any, Optional, Type
 from .exceptions import InvalidRequestException, InvalidAccessCredentials
 
-################################### REQUESTS ###################################
+# ################################## REQUESTS ###################################
+
 
 class JRPCRequest:
     """Validates, parses and serializes jRPC request"""
@@ -28,10 +29,22 @@ class JRPCRequest:
 
             return True
 
-    def obtrain_param(self, param: str, default = None) -> Optional[Any]:
-        if param in self.params:
+    def _obtain_typed_param(self, param: str, param_type: Type) -> Optional[Any]:
+        if param in self.params and isinstance(self.params[param], param_type):
             return self.params[param]
         return default
+
+    def obtrain_str(self, param: str) -> Optional[str]:
+        return self._obtain_typed_param(param, str)
+
+    def obtain_int(self, param: str) -> Optional[int]:
+        return self._obtain_typed_param(param, int)
+
+    def obtain_float(self, param: str) -> Optional[float]:
+        return self._obtain_typed_param(param, float)
+
+    def obtain_bool(self, param: str) -> Optional[bool]:
+        return self._obtain_typed_param(param, bool)
 
     @staticmethod
     def get_id(jmsg) -> Union[int, None]:
@@ -53,7 +66,7 @@ class SecuredJRPCRequest(JRPCRequest):
         validator: Callable,
         other: JRPCRequest,
         need_valid_access_token: bool = True
-        ):
+    ):
         self.method = other.method
         self.params = other.params
         self.id = other.id
@@ -65,7 +78,7 @@ class SecuredJRPCRequest(JRPCRequest):
 
         self.credentials = credentials
 
-################################################################################
+# ###############################################################################
 
 
 class BaseJRPCResponse:
@@ -115,4 +128,4 @@ class JRPCErrorResponse(BaseJRPCResponse):
         return self.error
 
 
-__all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse", "JRPCFailedResponse"]
+__all__ = ["JRPCRequest", "SecuredJRPCRequest", "JRPCSuccessResponse"]

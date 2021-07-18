@@ -15,7 +15,7 @@ class CreateGroupHandler(SecuredHandler):
     def process(self, payload: SecuredJRPCRequest) -> BaseJRPCResponse:
         user_id = payload.credentials.id
 
-        title = payload.obtrain_param('title')
+        title = payload.obtrain_str('title')
         if title is None:
             return self.wrap_invalid_response("Title of group must be specified")
 

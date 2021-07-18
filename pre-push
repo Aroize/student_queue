@@ -1,8 +1,24 @@
 #!/bin/bash
 
+# Run autotests
 CURRENT_DIR=$PWD
 PIPELINE="$CURRENT_DIR/backend/tests/run_tests.py"
+python3 "$PIPELINE"
 
-python3 $PIPELINE
+if [[ "$?" -gt 0 ]]; then
+  exit 1
+fi
 
-exit $?
+# Run lint
+LINT_ERRORS_COUNT=$(pycodestyle --max-line-length=120 \
+                                --ignore=E221,E272,E402 \
+                                --filename=$(find $CURRENT_DIR -name "*.py") | wc -l)
+
+if [[ "$LINT_ERRORS_COUNT" -gt 0 ]]; then
+  pycodestyle --max-line-length=120 \
+              --ignore=E221,E272,E402 \
+              --filename=$(find $CURRENT_DIR -name "*.py")
+  exit 1
+fi
+
+exit 0
