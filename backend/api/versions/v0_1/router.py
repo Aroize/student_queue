@@ -6,7 +6,7 @@ from backend.api.jrpc import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
 from backend.api.jrpc import InvalidRequestException, InvalidAccessCredentials
 from backend.api.jrpc import JRPCErrorCodes
 from backend.api.security import JwtTokenController
-from handlers import BaseHandler
+from .handlers import BaseHandler
 
 
 class RouteHandler(RequestHandler):
