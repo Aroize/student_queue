@@ -1,5 +1,5 @@
 from typing import Dict
-from .base_jrpc_response import  BaseJRPCResponse
+from .base_jrpc_response import BaseJRPCResponse
 
 
 class JRPCSuccessResponse(BaseJRPCResponse):

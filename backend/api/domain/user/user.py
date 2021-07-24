@@ -3,7 +3,6 @@ from ..dao import Base
 from sqlalchemy import Column, String, Integer, DateTime, Boolean
 
 
-
 class User(Base):
     __tablename__ = "user"
 

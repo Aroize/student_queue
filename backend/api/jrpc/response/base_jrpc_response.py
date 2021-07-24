@@ -19,4 +19,3 @@ class BaseJRPCResponse:
             self.response_field(): self.response_value(),
             "id": self.id
         }
-

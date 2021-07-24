@@ -65,6 +65,3 @@ class RouteHandler(RequestHandler):
         result = handler.process(payload)
 
         return self.write(result.json)
-
-
-

@@ -45,4 +45,3 @@ class AuthHandler(BaseHandler):
         }
 
         return JRPCSuccessResponse(response, payload.id)
-

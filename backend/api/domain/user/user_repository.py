@@ -3,7 +3,6 @@ from ..dao import DBAccessor
 from .user import User
 
 
-
 class UserRepository:
 
     def __init__(self):

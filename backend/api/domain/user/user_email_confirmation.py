@@ -2,6 +2,7 @@ from datetime import datetime
 from ..dao import Base
 from sqlalchemy import Column, Integer, DateTime, ForeignKey
 
+
 class UserEmailConfirmation(Base):
     __tablename__ = "user_confirmation"
 

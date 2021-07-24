@@ -16,5 +16,5 @@ class EmailVerificationHandler(RequestHandler):
         else:
             self.redirect('/res/html/failed.html')
 
-        # @Arize, is it ok without self.write() ?
+        # @Aroize, is it ok without self.write() ?
         return

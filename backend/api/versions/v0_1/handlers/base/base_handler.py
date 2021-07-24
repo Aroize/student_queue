@@ -22,4 +22,3 @@ class BaseHandler:
 
     def __repr__(self):
         return f"Endpoint {self.method()}"
-
