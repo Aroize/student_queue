@@ -1,8 +1,3 @@
-import sys
-sys.path.insert(0, "../api")
-sys.path.insert(0, "backend/api")
-
-import os
 import unittest
 import security_tests
 

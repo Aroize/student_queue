@@ -1,10 +1,9 @@
-import sys
-sys.path.insert(0, "../../api")
-
 import json
+from datetime import datetime, timedelta
+from jwt import jwk_from_dict
 import unittest
-from keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
-from security import (
+from backend.api.security.keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
+from backend.api.security import (
     NowDateTimeProvider,
     JwtTokenController,
     JwtTokenControllerImpl,
@@ -12,11 +11,11 @@ from security import (
     AccessCredentials,
     RefreshCredentials
 )
-from datetime import datetime, timedelta
-from jwt import jwk_from_dict
 
-access_path = "backend/tools/certs/access_secret.json"
-refresh_path = "backend/tools/certs/refresh_secret.json"
+
+# workdir is /backend/
+access_path = "tools/certs/access_secret.json"
+refresh_path = "tools/certs/refresh_secret.json"
 
 
 class TestNowDateTimeProvider(NowDateTimeProvider):

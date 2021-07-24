@@ -1,18 +1,17 @@
-from typing import Callable
-from ..base import BaseHandler
+import inject
 from backend.api.jrpc import BaseJRPCResponse, JRPCRequest, JRPCSuccessResponse
 from backend.api.jrpc import JRPCErrorCodes, JRPCErrorResponse
+from backend.api.domain import UserInteractor
+from ..base import BaseHandler
 
 
 class RegistrationHandler(BaseHandler):
 
-    def __init__(self, user_interactor: Callable):
-        self.user_interactor = user_interactor
-
     def method(self) -> str:
         return "auth.register"
 
-    def process(self, payload: JRPCRequest) -> BaseJRPCResponse:
+    @inject.params(user_interactor=UserInteractor)
+    def process(self, payload: JRPCRequest, user_interactor: UserInteractor = None) -> BaseJRPCResponse:
         login = payload.obtrain_str('login')
         name = payload.obtrain_str('name')
         surname = payload.obtrain_str('surname')
@@ -31,7 +30,7 @@ class RegistrationHandler(BaseHandler):
             return self.wrap_invalid_response("email parameter must be specified")
 
         try:
-            user = self.user_interactor.create(login, password, email, name, surname)
+            user = user_interactor.create(login, password, email, name, surname)
         except ValueError as e:
             return self.wrap_invalid_response(str(e))
         except RuntimeError as e:

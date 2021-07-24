@@ -1,3 +1,4 @@
+from pathlib import Path
 import json
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -8,7 +9,7 @@ class MailSenderService:
 
     TAG = "$$TOKEN_REF$$"
 
-    def __init__(self, config_path: str, template_path: str):
+    def __init__(self, config_path: Path, template_path: Path):
         with open(config_path) as json_config:
             config = json.load(json_config)
         self.server = config['server']

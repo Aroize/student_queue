@@ -1,4 +1,4 @@
-from typing import Callable
+from backend.api.security import JwtTokenController
 from .jrpc_request import JRPCRequest
 from ..exceptions import InvalidAccessCredentials
 
@@ -8,7 +8,7 @@ class SecuredJRPCRequest(JRPCRequest):
     def __init__(
         self,
         headers: dict,
-        validator: Callable,
+        validator: JwtTokenController,
         other: JRPCRequest,
         need_valid_access_token: bool = True
     ):

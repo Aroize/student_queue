@@ -1,3 +1,4 @@
+from pathlib import Path
 import json
 from jwt import JWT, AbstractJWKBase, jwk_from_dict
 from random import randint
@@ -17,8 +18,8 @@ class JwtTokenControllerImpl(JwtTokenController):
             self,
             access_secret: AbstractJWKBase = None,
             refresh_secret: AbstractJWKBase = None,
-            access_secret_file: str = None,
-            refresh_secret_file: str = None,
+            access_secret_file: Path = None,
+            refresh_secret_file: Path = None,
             access_secret_json: dict = None,
             refresh_secret_json: dict = None,
             datetime_provider: NowDateTimeProvider = NowDateTimeProvider()

@@ -1,18 +1,21 @@
+from typing import Dict
 import json
 from tornado.web import RequestHandler
-from typing import Callable, Dict
+import inject
 from backend.api.jrpc import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
 from backend.api.jrpc import InvalidRequestException, InvalidAccessCredentials
 from backend.api.jrpc import JRPCErrorCodes
+from backend.api.security import JwtTokenController
+from handlers import BaseHandler
 
 
 class RouteHandler(RequestHandler):
 
-    def initialize(self, methods: Dict[str, Callable], jwt_controller: Callable):
+    def initialize(self, methods: Dict[str, BaseHandler]):
         self.methods = methods
-        self.jwt_controller = jwt_controller
 
-    def post(self):
+    @inject.params(jwt_controller=JwtTokenController)
+    def post(self, jwt_controller: JwtTokenController = None):
         orig_payload = json.loads(self.request.body)
 
         # Validate json message
@@ -43,7 +46,7 @@ class RouteHandler(RequestHandler):
             try:
                 payload = SecuredJRPCRequest(
                     self.request.headers,
-                    self.jwt_controller,
+                    jwt_controller,
                     payload,
                     handler.need_access_token()
                 )
@@ -64,20 +67,4 @@ class RouteHandler(RequestHandler):
         return self.write(result.json)
 
 
-class EmailVerificationHandler(RequestHandler):
 
-    def initialize(self, user_interactor: Callable):
-        self.user_interactor = user_interactor
-
-    def get(self):
-        id = int(self.get_argument('id'))
-        code = int(self.get_argument('code'))
-
-        if id is None or code is None:
-            self.redirect('/res/html/failed.html')
-        elif self.user_interactor.confirm_email(id, code):
-            self.redirect('/res/html/success.html')
-        else:
-            self.redirect('/res/html/failed.html')
-
-        return
