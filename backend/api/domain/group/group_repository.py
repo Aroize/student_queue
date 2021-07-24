@@ -1,43 +1,7 @@
-from .dao import DBAccessor, Base
-from typing import Optional, List, Callable
-from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, PrimaryKeyConstraint
-
-# Tables
-
-
-class Group(Base):
-    __tablename__ = "group"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String)
-    admin = Column(Integer, ForeignKey("user.id"))
-
-    @property
-    def values(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "admin": self.admin
-        }
-
-    def __repr__(self):
-        return "Group[id={} admin={} title={}]".format(self.id, self.admin, self.title)
-
-
-class GroupMember(Base):
-    __tablename__ = "group_member"
-    __table_args__ = (
-        PrimaryKeyConstraint("user_id", "group_id"),
-    )
-
-    user_id = Column(Integer, ForeignKey("user.id"))
-    group_id = Column(Integer, ForeignKey("group.id"))
-
-    def __repr__(self):
-        return "Member[user={} group={}]".format(self.user_id, self.group_id)
-
-
-# REPOSITORY
+from ..dao import DBAccessor
+from typing import Optional
+from .group import Group
+from .group_member import GroupMember
 
 
 class GroupRepository:
@@ -156,28 +120,3 @@ class GroupRepository:
             session.commit()
 
             return True
-
-
-# INTERACTOR
-
-class GroupInteractor:
-
-    def __init__(
-            self,
-            user_repository: Callable,
-            group_repository: GroupRepository
-    ):
-        self.user_repository = user_repository
-        self.group_repository = group_repository
-
-    def create(self, title: str, admin_id: int) -> Optional[Group]:
-
-        if len(title) not in range(3, 30):
-            raise ValueError("Group title length must be in range [3, 30)")
-
-        admin = self.user_repository.find_user_by_id(admin_id)
-        if admin is None:
-            raise RuntimeError("User with such id doesn't exist")
-
-        group = self.group_repository.create(title, admin.id)
-        return group

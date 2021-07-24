@@ -1,33 +1,16 @@
-import time
-import pathlib
+from pathlib import Path
 from loguru import logger
-from concurrent.futures import ThreadPoolExecutor
-from tornado.concurrent import run_on_executor
-from tornado.web import Application, RequestHandler
+# from concurrent.futures import ThreadPoolExecutor
+# from tornado.concurrent import run_on_executor
+from tornado.web import Application
 from tornado.ioloop import IOLoop
 
 from versions import v0_1
 from domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
 from domain import GroupInteractor, GroupRepository
-from tornado.ioloop import IOLoop
-from tornado.web import Application
-from security import JwtTokenController, JwtTokenControllerImpl
+from security import JwtTokenControllerImpl
 from mail_service import MailSenderService
-
-
-class Cleaner:
-
-    def __init__(self):
-        self.period_in_sec = 24 * 60 * 60
-
-    def __call__(self):
-        # DO CLEAR HERE
-        logger.info('Cleaner called')
-
-        self.schedule()
-
-    def schedule(self):
-        IOLoop.instance().add_timeout(time.time() + self.period_in_sec, self)
+from app import Cleaner
 
 
 class StudentQueueApp:
@@ -96,7 +79,7 @@ class StudentQueueApp:
             v0_1.SecuredEchoHandler(),
             v0_1.RegistrationHandler(user_interactor),
             v0_1.AuthHandler(user_interactor, jwt_controller),
-            v0_1.RefreshCredentialsController(jwt_controller),
+            v0_1.RefreshCredentialsHandler(jwt_controller),
             v0_1.CreateGroupHandler(group_interactor)
         ]
         method_mapping = {endpoint.method(): endpoint for endpoint in endpoints}

@@ -1,7 +1,7 @@
 from typing import Callable
-from .base_handlers import BaseHandler, SecuredHandler
-from versions.v0_1.message import JRPCRequest, SecuredJRPCRequest
-from versions.v0_1.message import BaseJRPCResponse, JRPCErrorResponse, JRPCSuccessResponse
+from backend.api.jrpc import SecuredJRPCRequest
+from backend.api.jrpc import BaseJRPCResponse, JRPCSuccessResponse
+from ..base import SecuredHandler
 
 
 class CreateGroupHandler(SecuredHandler):

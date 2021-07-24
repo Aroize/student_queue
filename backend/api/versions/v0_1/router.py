@@ -1,9 +1,9 @@
 import json
 from tornado.web import RequestHandler
-from typing import Union, Callable, Dict
-from .message import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
-from .exceptions import InvalidRequestException, InvalidAccessCredentials
-from .exceptions import JRPCErrorCode, InvalidParametersException
+from typing import Callable, Dict
+from backend.api.jrpc import JRPCRequest, SecuredJRPCRequest, JRPCErrorResponse
+from backend.api.jrpc import InvalidRequestException, InvalidAccessCredentials
+from backend.api.jrpc import JRPCErrorCodes
 
 
 class RouteHandler(RequestHandler):
@@ -20,7 +20,7 @@ class RouteHandler(RequestHandler):
             payload = JRPCRequest(orig_payload)
         except InvalidRequestException:
             self.set_status(400)
-            error = JRPCErrorResponse(JRPCErrorCode.InvalidRequest.value,
+            error = JRPCErrorResponse(JRPCErrorCodes.InvalidRequest.value,
                                       "Message is not a jrpc message",
                                       JRPCRequest.get_id(orig_payload))
             return self.write(error.json)
@@ -29,7 +29,7 @@ class RouteHandler(RequestHandler):
         method = payload.method
         if method not in self.methods:
             self.set_status(400)
-            error = JRPCErrorResponse(JRPCErrorCode.MethodNotFound.value,
+            error = JRPCErrorResponse(JRPCErrorCodes.MethodNotFound.value,
                                       "Method not found",
                                       JRPCRequest.get_id(orig_payload))
             return self.write(error.json)
@@ -48,11 +48,11 @@ class RouteHandler(RequestHandler):
                     handler.need_access_token()
                 )
             except InvalidAccessCredentials:
-                error = JRPCErrorResponse(JRPCErrorCode.AccessTokenExpired.value,
+                error = JRPCErrorResponse(JRPCErrorCodes.AccessTokenExpired.value,
                                           "Method is secured, access token is expired or absent",
                                           JRPCRequest.get_id(orig_payload))
             except RuntimeError:
-                error = JRPCErrorResponse(JRPCErrorCode.AbsentUserIdentity.value,
+                error = JRPCErrorResponse(JRPCErrorCodes.AbsentUserIdentity.value,
                                           "Method is secured, at least must be provided user id",
                                           JRPCRequest.get_id(orig_payload))
             if error is not None:

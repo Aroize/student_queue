@@ -9,6 +9,7 @@ loguru = "*"
 jwt = "*"
 sqlalchemy = "*"
 pycodestyle = "*"
+inject = "*"
 
 [dev-packages]
 

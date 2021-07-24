@@ -1,56 +1,14 @@
 import json
-from keys import *
 from jwt import JWT, AbstractJWKBase, jwk_from_dict
 from random import randint
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 from jwt.utils import get_time_from_int, get_int_from_datetime
-
-# Data classes for credentials
-
-
-class Credentials:
-
-    def __init__(self, id: int):
-        self.id = id
-
-
-class AccessCredentials(Credentials):
-
-    def __init__(self, access_token: str, id: int):
-        super().__init__(id)
-        self.access_token = access_token
-
-
-class RefreshCredentials(AccessCredentials):
-
-    def __init__(self, refresh_token: str, access_token: str, id: int):
-        super().__init__(access_token, id)
-        self.refresh_token = refresh_token
-
-# Interface for jwt generator and validator
-
-
-class JwtTokenController:
-
-    def retreive_credentials(self, headers: dict) -> Credentials:
-        raise NotImplementedError("Not implemented")
-
-    def is_access_token_valid(self, credentials: Credentials) -> bool:
-        raise NotImplementedError("Not implemented")
-
-    def is_refresh_token_valid(self, credentials: Credentials) -> bool:
-        raise NotImplementedError("Not implemented")
-
-    def generate_full_credentials(self, credentials: Credentials) -> RefreshCredentials:
-        raise NotImplementedError("Not implemented")
-
-
-# Implementation of jwt generator and validator
-
-class NowDateTimeProvider:
-
-    def now(self) -> datetime:
-        return datetime.now(timezone.utc)
+from backend.api.security.keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
+from .jwt_token_controller import JwtTokenController
+from .now_date_time_provider import NowDateTimeProvider
+from .credentials import Credentials
+from .refresh_credentials import RefreshCredentials
+from .access_credentials import AccessCredentials
 
 
 class JwtTokenControllerImpl(JwtTokenController):

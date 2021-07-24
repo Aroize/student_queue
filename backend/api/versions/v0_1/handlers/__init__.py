@@ -1,3 +1,4 @@
-from .base_handlers import EchoHandler, SecuredEchoHandler
-from .auth_handlers import RegistrationHandler, AuthHandler, RefreshCredentialsController
-from .group_handlers import CreateGroupHandler
+from .auth import RegistrationHandler, AuthHandler, RefreshCredentialsHandler
+from .base import BaseHandler, SecuredHandler
+from .debug import EchoHandler, SecuredEchoHandler
+from .group import CreateGroupHandler
