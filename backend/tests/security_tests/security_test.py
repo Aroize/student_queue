@@ -13,9 +13,9 @@ from backend.api.security import (
 )
 
 
-# workdir is /backend/
-access_path = "tools/certs/access_secret.json"
-refresh_path = "tools/certs/refresh_secret.json"
+# workdir is /
+access_path = "backend/tools/certs/access_secret.json"
+refresh_path = "backend/tools/certs/refresh_secret.json"
 
 
 class TestNowDateTimeProvider(NowDateTimeProvider):
