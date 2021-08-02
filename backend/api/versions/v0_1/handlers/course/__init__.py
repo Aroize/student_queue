@@ -1,0 +1,3 @@
+from .create_course_handler import CreateCourseHandler
+from .remove_course_handler import RemoveCourseHandler
+from .find_courses_by_teacher_handler import FindCourseByTeacherHandler

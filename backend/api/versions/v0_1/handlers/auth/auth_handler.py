@@ -1,7 +1,7 @@
 import inject
 from backend.api.jrpc import BaseJRPCResponse, JRPCRequest, JRPCSuccessResponse
 from backend.api.security import JwtTokenControllerImpl, Credentials
-from backend.api.domain import UserInteractor
+from backend.api.domain.user import UserInteractor
 from ..base import BaseHandler
 
 

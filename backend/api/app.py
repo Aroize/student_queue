@@ -70,7 +70,10 @@ class StudentQueueApp:
             v0_1.AuthHandler(),
             v0_1.RefreshCredentialsHandler(),
             v0_1.CreateGroupHandler(),
-            v0_1.FakeEmailVerificationHandler()
+            v0_1.FakeEmailVerificationHandler(),
+            v0_1.CreateCourseHandler(),
+            v0_1.RemoveCourseHandler(),
+            v0_1.FindCourseByTeacherHandler()
         ]
         methods_mapping = {endpoint.method(): endpoint for endpoint in endpoints}
 

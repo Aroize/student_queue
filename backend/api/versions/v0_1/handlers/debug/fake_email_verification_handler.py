@@ -1,6 +1,6 @@
 import inject
 from loguru import logger
-from backend.api.domain import UserInteractor
+from backend.api.domain.user import UserInteractor
 from backend.api.jrpc import JRPCRequest, BaseJRPCResponse, JRPCSuccessResponse, JRPCErrorResponse
 from backend.api.jrpc import JRPCErrorCodes
 from ..base import BaseHandler

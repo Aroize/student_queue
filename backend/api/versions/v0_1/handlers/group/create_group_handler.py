@@ -1,7 +1,7 @@
 import inject
 from backend.api.jrpc import SecuredJRPCRequest
 from backend.api.jrpc import BaseJRPCResponse, JRPCSuccessResponse
-from backend.api.domain import GroupInteractor
+from backend.api.domain.group import GroupInteractor
 from ..base import SecuredHandler
 
 

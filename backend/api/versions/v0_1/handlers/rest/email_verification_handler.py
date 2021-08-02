@@ -1,6 +1,6 @@
 from tornado.web import RequestHandler
 import inject
-from backend.api.domain import UserInteractor
+from backend.api.domain.user import UserInteractor
 
 
 class EmailVerificationHandler(RequestHandler):
