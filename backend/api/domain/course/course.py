@@ -1,6 +1,6 @@
 from datetime import datetime
 from ..dao import Base
-from sqlalchemy import Column, String, Integer, DateTime, Boolean
+from sqlalchemy import Column, String, Integer, DateTime
 
 
 class Course(Base):

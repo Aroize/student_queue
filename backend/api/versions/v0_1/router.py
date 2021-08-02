@@ -16,13 +16,18 @@ class RouteHandler(RequestHandler):
 
     @inject.params(jwt_controller=JwtTokenController)
     def post(self, jwt_controller: JwtTokenController = None):
-        orig_payload = json.loads(self.request.body)
+        try:
+            orig_payload = json.loads(self.request.body)
+        except json.JSONDecodeError:
+            error = JRPCErrorResponse(JRPCErrorCodes.InvalidRequest.value,
+                                      "Fail to parse json message",
+                                      0)
+            return self.write(error.json)
 
         # Validate json message
         try:
             payload = JRPCRequest(orig_payload)
         except InvalidRequestException:
-            self.set_status(400)
             error = JRPCErrorResponse(JRPCErrorCodes.InvalidRequest.value,
                                       "Message is not a jrpc message",
                                       JRPCRequest.get_id(orig_payload))
@@ -31,7 +36,6 @@ class RouteHandler(RequestHandler):
         # Search real method handler
         method = payload.method
         if method not in self.methods:
-            self.set_status(400)
             error = JRPCErrorResponse(JRPCErrorCodes.MethodNotFound.value,
                                       "Method not found",
                                       JRPCRequest.get_id(orig_payload))

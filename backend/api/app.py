@@ -8,6 +8,8 @@ from versions import v0_1
 from backend.api.domain.user import UserInteractor, UserRepository, UserEmailConfirmationRepository
 from backend.api.domain.group import GroupInteractor, GroupRepository
 from backend.api.domain.file import FileInteractor, FileRepository
+from backend.api.domain.course import CourseInteractor, CourseRepository
+from backend.api.domain.course.lab import LabInteractor, LabRepository
 from backend.api.security import JwtTokenControllerImpl
 from backend.api.mail_service import MailSenderService
 from app import Cleaner
@@ -53,10 +55,14 @@ class StudentQueueApp:
         binder.bind_to_constructor(GroupRepository, GroupRepository)
         binder.bind_to_constructor(UserEmailConfirmationRepository, UserEmailConfirmationRepository)
         binder.bind_to_constructor(FileRepository, lambda: FileRepository(files_storage_path))
+        binder.bind_to_constructor(CourseRepository, CourseRepository)
+        binder.bind_to_constructor(LabRepository, LabRepository)
         # interactors
         binder.bind_to_constructor(UserInteractor, UserInteractor)
-        binder.bind_to_constructor(GroupInteractor, lambda: GroupInteractor())
+        binder.bind_to_constructor(GroupInteractor, GroupInteractor)
         binder.bind_to_constructor(FileInteractor, FileInteractor)
+        binder.bind_to_constructor(CourseInteractor, CourseInteractor)
+        binder.bind_to_constructor(LabInteractor, LabInteractor)
 
     def init_dependencies(self):
         inject.configure(self._bind_dependencies)
@@ -73,7 +79,9 @@ class StudentQueueApp:
             v0_1.FakeEmailVerificationHandler(),
             v0_1.CreateCourseHandler(),
             v0_1.RemoveCourseHandler(),
-            v0_1.FindCourseByTeacherHandler()
+            v0_1.FindCourseByTeacherHandler(),
+            v0_1.CreateLabHandler(),
+            v0_1.FindLabsByCourseHandler()
         ]
         methods_mapping = {endpoint.method(): endpoint for endpoint in endpoints}
 

@@ -3,4 +3,5 @@ from .handlers import EchoHandler, SecuredEchoHandler, FakeEmailVerificationHand
 from .handlers import RegistrationHandler, AuthHandler, RefreshCredentialsHandler
 from .handlers import CreateGroupHandler
 from .handlers import CreateCourseHandler, RemoveCourseHandler, FindCourseByTeacherHandler
+from .handlers import CreateLabHandler, FindLabsByCourseHandler
 from .handlers import EmailVerificationHandler, FilesHandler

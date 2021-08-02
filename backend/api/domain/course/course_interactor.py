@@ -1,5 +1,6 @@
 from typing import List
 import inject
+from backend.api.domain.course.lab import LabRepository, Lab
 from .cource_repository import CourseRepository
 from .course import Course
 
@@ -35,6 +36,18 @@ class CourseInteractor:
     @inject.params(course_repository=CourseRepository)
     def find_courses_by_teacher(self, teacher_name: str, course_repository: CourseRepository = None) -> List[Course]:
         return course_repository.find_courses_by_teacher_name(teacher_name)
+
+    @inject.params(course_repository=CourseRepository,
+                   lab_repository=LabRepository)
+    def find_labs_by_course(self,
+                            course_id: int,
+                            course_repository: CourseRepository = None,
+                            lab_repository: LabRepository = None) -> List[Lab]:
+        course = course_repository.find_course_by_id(course_id)
+        if course is None:
+            raise ValueError(f'No course with id={course_id}')
+        labs = lab_repository.find_labs_by_course_id(course_id)
+        return labs
 
     @staticmethod
     def _is_course_name_valid(name: str) -> bool:

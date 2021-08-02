@@ -1,5 +1,4 @@
 from typing import Optional, List
-from sqlalchemy import func
 from ..dao import DBAccessor
 from .course import Course
 
