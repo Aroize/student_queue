@@ -1,6 +1,6 @@
 import inject
 from backend.api.jrpc import BaseJRPCResponse, JRPCRequest, JRPCSuccessResponse
-from backend.api.security import JwtTokenController, Credentials
+from backend.api.security import JwtTokenControllerImpl, Credentials
 from backend.api.domain import UserInteractor
 from ..base import BaseHandler
 
@@ -9,13 +9,14 @@ class AuthHandler(BaseHandler):
     def method(self) -> str:
         return "auth.auth"
 
-    @inject.params(user_interactor=UserInteractor, jwt_controller=JwtTokenController)
+    @inject.params(user_interactor=UserInteractor,
+                   jwt_controller=JwtTokenControllerImpl)
     def process(self,
                 payload: JRPCRequest,
                 user_interactor: UserInteractor = None,
-                jwt_controller: JwtTokenController = None) -> BaseJRPCResponse:
-        login_email = payload.obtrain_str('login')
-        password = payload.obtrain_str('password')
+                jwt_controller: JwtTokenControllerImpl = None) -> BaseJRPCResponse:
+        login_email = payload.obtain_str('login')
+        password = payload.obtain_str('password')
 
         if login_email is None:
             return self.wrap_invalid_response("login parameter must be specified")

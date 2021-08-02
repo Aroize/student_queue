@@ -1,16 +1,18 @@
-from backend.api.security import JwtTokenController
+import inject
+from backend.api.security import JwtTokenControllerImpl
 from .jrpc_request import JRPCRequest
 from ..exceptions import InvalidAccessCredentials
 
 
 class SecuredJRPCRequest(JRPCRequest):
 
+    @inject.params(validator=JwtTokenControllerImpl)
     def __init__(
         self,
         headers: dict,
-        validator: JwtTokenController,
         other: JRPCRequest,
-        need_valid_access_token: bool = True
+        need_valid_access_token: bool = True,
+        validator: JwtTokenControllerImpl = None
     ):
         self.method = other.method
         self.params = other.params

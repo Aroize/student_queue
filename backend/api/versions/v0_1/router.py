@@ -11,8 +11,8 @@ from .handlers import BaseHandler
 
 class RouteHandler(RequestHandler):
 
-    def initialize(self, methods: Dict[str, BaseHandler]):
-        self.methods = methods
+    def initialize(self, methods_mapping: Dict[str, BaseHandler]):
+        self.methods = methods_mapping
 
     @inject.params(jwt_controller=JwtTokenController)
     def post(self, jwt_controller: JwtTokenController = None):
@@ -46,7 +46,6 @@ class RouteHandler(RequestHandler):
             try:
                 payload = SecuredJRPCRequest(
                     self.request.headers,
-                    jwt_controller,
                     payload,
                     handler.need_access_token()
                 )

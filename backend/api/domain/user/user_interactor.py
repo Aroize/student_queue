@@ -1,25 +1,16 @@
 import re
 import random
 from hashlib import sha256
-from typing import Optional, Callable
+from typing import Optional
+import inject
 from .user import User
 from .user_repository import UserRepository
 from .user_email_confirmation_repository import UserEmailConfirmationRepository
+from backend.api.mail_service import MailSenderService
 
 
 class UserInteractor:
-
-    def __init__(
-            self,
-            user_repository: UserRepository,
-            email_confirmation: UserEmailConfirmationRepository,
-            mail_service: Callable
-    ):
-
-        self.user_repository = user_repository
-        self.email_confirmation_repository = email_confirmation
-        self.mail_service = mail_service
-
+    def __init__(self):
         login_regex = r"[A-Za-z0-9_]{4,15}"
         self.login_regex = re.compile(login_regex)
         email_regex = r"(?:[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c" \
@@ -31,13 +22,19 @@ class UserInteractor:
         password_regex = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[_a-zA-Z\d]{8,15}$"
         self.password_regex = re.compile(password_regex)
 
+    @inject.params(mail_service=MailSenderService,
+                   user_repository=UserRepository,
+                   email_confirmation_repository=UserEmailConfirmationRepository)
     def create(
         self,
         login: str,
         password: str,
         email: str,
         name: str,
-        surname: str
+        surname: str,
+        mail_service: MailSenderService = None,
+        user_repository: UserRepository = None,
+        email_confirmation_repository: UserEmailConfirmationRepository = None
     ) -> User:
         name = name.strip()
         surname = surname.strip()
@@ -60,31 +57,46 @@ class UserInteractor:
 
         password_hash = sha256(password.encode()).hexdigest()
 
-        user = self.user_repository.create(login, password_hash, email, name, surname)
+        user = user_repository.create(login, password_hash, email, name, surname)
         code = random.randint(100000, 999999)
-        confirmation = self.email_confirmation_repository.create(user.id, code)
+        confirmation = email_confirmation_repository.create(user.id, code)
         url = self.build_verification_url(confirmation.id, confirmation.code)
-        self.mail_service.send_verification_email(url)
+        mail_service.send_verification_email(url)
 
         return user
 
-    def confirm_email(self, id: int, code: int) -> bool:
+    @inject.params(user_repository=UserRepository,
+                   email_confirmation_repository=UserEmailConfirmationRepository)
+    def confirm_email(self,
+                      id: int,
+                      code: int,
+                      user_repository: UserRepository = None,
+                      email_confirmation_repository: UserEmailConfirmationRepository = None) -> bool:
 
-        confirmation = self.email_confirmation_repository.find_confirmation_by_user(id)
+        confirmation = email_confirmation_repository.find_confirmation_by_user(id)
         if confirmation is None or confirmation.code != code:
             return False
-        self.email_confirmation_repository.delete_confirmation_by_user(id)
+        email_confirmation_repository.delete_confirmation_by_user(id)
 
-        user = self.user_repository.find_user_by_id(id)
+        user = user_repository.find_user_by_id(id)
         user.email_confirmed = True
-        self.user_repository.update(user)
+        user_repository.update(user)
 
         return True
 
-    def auth(self, login_email: str, raw_password: str) -> Optional[User]:
+    @inject.params(email_confirmation_repository=UserEmailConfirmationRepository)
+    def fake_confirm_email(self, id: int, email_confirmation_repository: UserEmailConfirmationRepository = None) -> bool:
+        confirmation = email_confirmation_repository.find_confirmation_by_user(id)
+        if confirmation is None:
+            return False
+        confirm_code = confirmation.code
+        return self.confirm_email(id, confirm_code)
+
+    @inject.params(user_repository=UserRepository)
+    def auth(self, login_email: str, raw_password: str, user_repository: UserRepository = None) -> Optional[User]:
         password = sha256(raw_password.encode()).hexdigest()
-        user = self.user_repository.find_user_by_email(login_email) or \
-               self.user_repository.find_user_by_login(login_email)
+        user = user_repository.find_user_by_email(login_email) or \
+               user_repository.find_user_by_login(login_email)
 
         if user is None:
             raise RuntimeError("No such user")
@@ -96,5 +108,6 @@ class UserInteractor:
         return user
 
     # TODO(): remove this hardcode, mode to some controller
-    def build_verification_url(self, id, code):
+    @staticmethod
+    def build_verification_url(id: int, code: int) -> str:
         return "http://localhost:5022/verify_email?id={}&code={}".format(id, code)

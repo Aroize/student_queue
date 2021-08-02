@@ -13,33 +13,22 @@ from .access_credentials import AccessCredentials
 
 
 class JwtTokenControllerImpl(JwtTokenController):
+    @classmethod
+    def from_files(cls, access_secret_file: Path, refresh_secret_file: Path):
+        with open(access_secret_file) as access:
+            access_secret_json = json.load(access)
+        with open(refresh_secret_file) as refresh:
+            refresh_secret_json = json.load(refresh)
+        return cls.from_json(access_secret_json, refresh_secret_json)
 
-    def __init__(
-            self,
-            access_secret: AbstractJWKBase = None,
-            refresh_secret: AbstractJWKBase = None,
-            access_secret_file: Path = None,
-            refresh_secret_file: Path = None,
-            access_secret_json: dict = None,
-            refresh_secret_json: dict = None,
-            datetime_provider: NowDateTimeProvider = NowDateTimeProvider()
-    ):
+    @classmethod
+    def from_json(cls, access_secret_json: dict, refresh_secret_json: dict):
+        access_secret = jwk_from_dict(access_secret_json)
+        refresh_secret = jwk_from_dict(refresh_secret_json)
+        return cls(access_secret, refresh_secret)
 
-        self.datetime_provider = datetime_provider
-
-        if access_secret_file is not None and refresh_secret_file is not None:
-            with open(access_secret_file) as access:
-                access_secret_json = json.load(access)
-            with open(refresh_secret_file) as refresh:
-                refresh_secret_json = json.load(refresh)
-
-        if access_secret_json is not None and refresh_secret_json is not None:
-            access_secret = jwk_from_dict(access_secret_json)
-            refresh_secret = jwk_from_dict(refresh_secret_json)
-
-        if access_secret is None or refresh_secret is None:
-            raise RuntimeError("Secret keys for access and refresh tokens must be specified")
-
+    def __init__(self, access_secret: AbstractJWKBase, refresh_secret: AbstractJWKBase):
+        self.datetime_provider = NowDateTimeProvider()
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
 
@@ -64,8 +53,8 @@ class JwtTokenControllerImpl(JwtTokenController):
         if not isinstance(credentials, AccessCredentials):
             return False
 
-        jwt = self.__parse_jwt__(credentials.access_token, self.access_secret)
-        if jwt is None or 'sub' not in jwt or self.__is_token_expired__(jwt):
+        jwt = self._parse_jwt(credentials.access_token, self.access_secret)
+        if jwt is None or 'sub' not in jwt or self._is_token_expired(jwt):
             return False
 
         return jwt['sub'] == credentials.id
@@ -74,8 +63,8 @@ class JwtTokenControllerImpl(JwtTokenController):
         if not isinstance(credentials, RefreshCredentials):
             return False
 
-        access_jwt = self.__parse_jwt__(credentials.access_token, self.access_secret)
-        refresh_jwt = self.__parse_jwt__(credentials.refresh_token, self.refresh_secret)
+        access_jwt = self._parse_jwt(credentials.access_token, self.access_secret)
+        refresh_jwt = self._parse_jwt(credentials.refresh_token, self.refresh_secret)
 
         if access_jwt is None or refresh_jwt is None:
             return False
@@ -83,7 +72,7 @@ class JwtTokenControllerImpl(JwtTokenController):
         if 'sub' not in access_jwt or access_jwt['sub'] != credentials.id:
             return False
 
-        if self.__is_token_expired__(refresh_jwt):
+        if self._is_token_expired(refresh_jwt):
             return False
 
         if 'rcd' not in access_jwt or 'sub' not in refresh_jwt:
@@ -93,18 +82,18 @@ class JwtTokenControllerImpl(JwtTokenController):
 
     def generate_full_credentials(self, credentials: Credentials) -> RefreshCredentials:
         rcd = randint(0, 1024)
-        access_token = self.__generate_access_token__(credentials.id, rcd)
-        refresh_token = self.__generate_refresh_token__(rcd)
+        access_token = self._generate_access_token(credentials.id, rcd)
+        refresh_token = self._generate_refresh_token(rcd)
         return RefreshCredentials(refresh_token, access_token, credentials.id)
 
-    def __parse_jwt__(self, token: str, key: AbstractJWKBase) -> dict:
+    def _parse_jwt(self, token: str, key: AbstractJWKBase) -> dict:
         instance = JWT()
         try:
             return instance.decode(token, key, do_time_check=False)
         except Exception as e:
             return None
 
-    def __is_token_expired__(self, token: dict) -> bool:
+    def _is_token_expired(self, token: dict) -> bool:
         time = token['exp']
         now = self.datetime_provider.now()
 
@@ -112,7 +101,7 @@ class JwtTokenControllerImpl(JwtTokenController):
 
         return now >= exp
 
-    def __generate_access_token__(self, id: int, rcd: int) -> str:
+    def _generate_access_token(self, id: int, rcd: int) -> str:
         exp = get_int_from_datetime(
             self.datetime_provider.now() + timedelta(minutes=15)
         )
@@ -124,7 +113,7 @@ class JwtTokenControllerImpl(JwtTokenController):
         instance = JWT()
         return instance.encode(message, self.access_secret, alg='RS256')
 
-    def __generate_refresh_token__(self, rcd: int) -> str:
+    def _generate_refresh_token(self, rcd: int) -> str:
         exp = get_int_from_datetime(
             self.datetime_provider.now() + timedelta(weeks=2)
         )

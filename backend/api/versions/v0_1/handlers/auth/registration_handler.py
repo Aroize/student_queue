@@ -11,12 +11,13 @@ class RegistrationHandler(BaseHandler):
         return "auth.register"
 
     @inject.params(user_interactor=UserInteractor)
-    def process(self, payload: JRPCRequest, user_interactor: UserInteractor = None) -> BaseJRPCResponse:
-        login = payload.obtrain_str('login')
-        name = payload.obtrain_str('name')
-        surname = payload.obtrain_str('surname')
-        password = payload.obtrain_str('password')
-        email = payload.obtrain_str('email')
+    def process(self, payload: JRPCRequest,
+                user_interactor: UserInteractor = None) -> BaseJRPCResponse:
+        login = payload.obtain_str('login')
+        name = payload.obtain_str('name')
+        surname = payload.obtain_str('surname')
+        password = payload.obtain_str('password')
+        email = payload.obtain_str('email')
 
         if login is None:
             return self.wrap_invalid_response("login parameter must be specified")

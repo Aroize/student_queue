@@ -1,14 +1,19 @@
-from typing import Optional, Callable
+from typing import Optional
+
+import inject
+
+from ..user import UserRepository
 from .group import Group
 from .group_repository import GroupRepository
 
 
 class GroupInteractor:
-
+    @inject.params(user_repository=UserRepository,
+                   group_repository=GroupRepository)
     def __init__(
             self,
-            user_repository: Callable,
-            group_repository: GroupRepository
+            user_repository: UserRepository = None,
+            group_repository: GroupRepository = None
     ):
         self.user_repository = user_repository
         self.group_repository = group_repository

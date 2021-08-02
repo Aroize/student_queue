@@ -1,7 +1,5 @@
-from typing import Dict, Union, Callable, Any, Optional, Type
-from ..exceptions import InvalidRequestException, InvalidAccessCredentials
-
-# ################################## REQUESTS ###################################
+from typing import Dict, Union, Any, Optional, Type
+from ..exceptions import InvalidRequestException
 
 
 class JRPCRequest:
@@ -34,7 +32,7 @@ class JRPCRequest:
             return self.params[param]
         return None
 
-    def obtrain_str(self, param: str) -> Optional[str]:
+    def obtain_str(self, param: str) -> Optional[str]:
         return self._obtain_typed_param(param, str)
 
     def obtain_int(self, param: str) -> Optional[int]:
