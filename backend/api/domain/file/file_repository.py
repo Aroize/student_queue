@@ -21,16 +21,14 @@ class FileRepository:
     ) -> Optional[File]:
         with self.accessor().session() as session:
             # todo add size measuring
-            file = File(owner=owner, rules=rules, filename=filename, size=0)
-
+            file = File(owner=owner, rules=rules, filename=filename, size=len(file_content))
             session.add(file)
             session.flush()
-
             session.commit()
 
-
-            with open(self.files_path / str(owner), 'wb') as f:
+            with open(self.files_path / str(file.id), 'wb') as f:
                 f.write(file_content)
+                print('content written')
             return file
 
     def find_file_by_id(self, file_id: int) -> Optional[File]:

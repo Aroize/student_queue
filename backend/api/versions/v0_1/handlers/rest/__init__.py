@@ -1,1 +1,2 @@
 from .email_verification_handler import EmailVerificationHandler
+from .files_handler import FilesHandler

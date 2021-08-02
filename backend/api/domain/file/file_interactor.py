@@ -1,20 +1,25 @@
 from typing import Optional
+
+import inject
+
 from ..user import UserRepository
 from .file import File
 from .file_repository import FileRepository
 
 
 class FileInteractor:
+    def __init__(self):
+        self.pic_extentions = ('png', 'jpg', 'jpeg')
 
-    def __init__(
-            self,
-            file_repository: FileRepository,
-            user_repository: UserRepository
-    ):
-        self.file_repository = file_repository
-        self.user_repository = user_repository
-
-    def create(self, owner: int, rules: str, filename: str, file_content: bytes) -> Optional[File]:
+    @inject.params(file_repository=FileRepository,
+                   user_repository=UserRepository)
+    def create(self,
+               owner: int,
+               rules: str,
+               filename: str,
+               file_content: bytes,
+               file_repository: FileRepository = None,
+               user_repository: UserRepository = None) -> Optional[File]:
 
         extension = filename.split(".")[-1]
         if not self._is_allowed_extension(extension):
@@ -26,15 +31,19 @@ class FileInteractor:
         if self._is_empty(file_content):
             raise ValueError("File shouldnt be empty")
 
-        owner = self.user_repository.find_user_by_id(owner)
+        owner = user_repository.find_user_by_id(owner)
         if owner is None:
             raise RuntimeError("User with such id doesn't exist")
 
-        file = self.file_repository.create(owner, owner.id, filename, file_content)
+        file = file_repository.create(owner.id, rules, filename, file_content)
         return file
 
-    def get(self, user_id: int, file_id: int) -> Optional[File]:
-        file = self.file_repository.find_file_by_id(file_id)
+    def is_picture_extention(self, ext: str) -> bool:
+        return ext in self.pic_extentions
+
+    @inject.params(file_repository=FileRepository)
+    def get(self, user_id: int, file_id: int, file_repository: FileRepository = None) -> Optional[File]:
+        file = file_repository.find_file_by_id(file_id)
         if file is None:
             return None
         if file.owner == user_id:
@@ -58,13 +67,13 @@ class FileInteractor:
         return True
 
     def _is_allowed_extension(self, ext: str) -> bool:
-        pics = ('png', 'jpg', 'jpeg')
+
         docs = ('doc', 'docx', 'txt')
         source_code = ('py', 'ipynb', 'java', 'cpp', 'hpp')
         empty = ('', )
-        extensions = pics + docs + source_code + empty
+        extensions = self.pic_extentions + docs + source_code + empty
         return ext in extensions
 
     def _is_empty(self, file_content: bytes) -> bool:
         # todo check
-        return len(file_content) > 0
+        return len(file_content) == 0

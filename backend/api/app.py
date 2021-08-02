@@ -5,8 +5,9 @@ from tornado.ioloop import IOLoop
 import inject
 
 from versions import v0_1
-from backend.api.domain import UserInteractor, UserRepository, UserEmailConfirmationRepository
-from backend.api.domain import GroupInteractor, GroupRepository
+from backend.api.domain.user import UserInteractor, UserRepository, UserEmailConfirmationRepository
+from backend.api.domain.group import GroupInteractor, GroupRepository
+from backend.api.domain.file import FileInteractor, FileRepository
 from backend.api.security import JwtTokenControllerImpl
 from backend.api.mail_service import MailSenderService
 from app import Cleaner
@@ -51,9 +52,11 @@ class StudentQueueApp:
         binder.bind_to_constructor(UserRepository, UserRepository)
         binder.bind_to_constructor(GroupRepository, GroupRepository)
         binder.bind_to_constructor(UserEmailConfirmationRepository, UserEmailConfirmationRepository)
+        binder.bind_to_constructor(FileRepository, lambda: FileRepository(files_storage_path))
         # interactors
         binder.bind_to_constructor(UserInteractor, UserInteractor)
         binder.bind_to_constructor(GroupInteractor, lambda: GroupInteractor())
+        binder.bind_to_constructor(FileInteractor, FileInteractor)
 
     def init_dependencies(self):
         inject.configure(self._bind_dependencies)
@@ -74,7 +77,8 @@ class StudentQueueApp:
         # not jrpc handlers
         self.urls = [
             ("/v0.1", v0_1.RouteHandler, dict(methods_mapping=methods_mapping)),
-            ("/verify_email", v0_1.EmailVerificationHandler)
+            ("/verify_email", v0_1.EmailVerificationHandler),
+            ("/files/(.*)", v0_1.FilesHandler, dict(path=files_storage_path))
         ]
 
         logger.info("Endpoints:\n\t" + "\n\t".join([str(endpoint) for endpoint in endpoints]))
@@ -83,5 +87,6 @@ class StudentQueueApp:
 if __name__ == '__main__':
     project_root_dir = Path(__file__).resolve().parent.parent
     tools = "tools"
+    files_storage_path = "../storage/"
     app = StudentQueueApp()
     app.run()
