@@ -5,6 +5,7 @@ from tornado.ioloop import IOLoop
 import inject
 
 from versions import v0_1
+from backend.api.domain.dao import BaseDBAccessor, DBAccessor
 from backend.api.domain.user import UserInteractor, UserRepository, UserEmailConfirmationRepository
 from backend.api.domain.group import GroupInteractor, GroupRepository
 from backend.api.domain.file import FileInteractor, FileRepository
@@ -41,6 +42,7 @@ class StudentQueueApp:
     @staticmethod
     def _bind_dependencies(binder: inject.Binder):
         # Careful: classes should be imported by absolute path to avoid dependencies errors
+        binder.bind_to_constructor(BaseDBAccessor, DBAccessor)
         # mail_sender
         binder.bind_to_constructor(MailSenderService,
                                    lambda: MailSenderService(config_path=project_root_dir / tools / "smtp_config.json",

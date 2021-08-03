@@ -123,7 +123,3 @@ class SecurityTests(unittest.TestCase):
 
         controller = create_jwt_controller()
         self.assertFalse(controller.is_refresh_token_valid(expired_credentials))
-
-
-def run():
-    unittest.main()

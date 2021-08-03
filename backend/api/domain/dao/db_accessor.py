@@ -1,16 +1,13 @@
 import pathlib
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
-Base = declarative_base()
+from .base_db_accessor import BaseDBAccessor, Base
 
 
-class DBAccessor:
+class DBAccessor(BaseDBAccessor):
     def __init__(self):
-
         # If you change path of dao file -> fix this relative paths
-        backend_dir = pathlib.Path(__file__).resolve().parent.parent.parent
+        backend_dir = pathlib.Path(__file__).resolve().parent.parent.parent.parent
         debug_db = pathlib.PurePath(backend_dir, 'tools', 'debug.db')
         uri = 'sqlite:///{}'.format(debug_db.as_posix())
 

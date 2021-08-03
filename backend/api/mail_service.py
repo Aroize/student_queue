@@ -31,6 +31,7 @@ class MailSenderService:
         attach = MIMEText(self.template.replace(MailSenderService.TAG, url), 'html', 'utf-8')
         msg.attach(attach)
 
+        # ?
         server.sendmail(self.mail, ["gipermonk@bk.ru"], msg.as_string())
 
         server.quit()

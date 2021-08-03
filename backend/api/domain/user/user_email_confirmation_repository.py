@@ -1,15 +1,17 @@
-from ..dao import DBAccessor
+import inject
+
+from ..dao import BaseDBAccessor
 from typing import Optional, List
 from .user_email_confirmation import UserEmailConfirmation
 
 
 class UserEmailConfirmationRepository:
-
-    def __init__(self):
-        self.accessor = DBAccessor
+    @inject.params(accessor=BaseDBAccessor)
+    def __init__(self, accessor: BaseDBAccessor = None):
+        self.accessor = accessor
 
     def create(self, id: int, code: int) -> UserEmailConfirmation:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             session.query(UserEmailConfirmation).filter_by(id=id).delete()
 
             user_confirmation = UserEmailConfirmation(id=id, code=code)
@@ -19,18 +21,18 @@ class UserEmailConfirmationRepository:
             return user_confirmation
 
     def find_confirmation_by_user(self, id: int) -> Optional[UserEmailConfirmation]:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(UserEmailConfirmation) \
                 .filter_by(id=id) \
                 .first()
 
     def delete_confirmation_by_user(self, id: int):
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             session.query(UserEmailConfirmation) \
                 .filter_by(id=id) \
                 .delete()
             session.commit()
 
     def select_all(self) -> List[UserEmailConfirmation]:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(UserEmailConfirmation).all()

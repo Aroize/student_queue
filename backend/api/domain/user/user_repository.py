@@ -1,12 +1,14 @@
 from typing import Optional, List, Any
-from ..dao import DBAccessor
+import inject
+from ..dao import BaseDBAccessor
 from .user import User
 
 
 class UserRepository:
 
-    def __init__(self):
-        self.accessor = DBAccessor
+    @inject.params(accessor=BaseDBAccessor)
+    def __init__(self, accessor: BaseDBAccessor = None):
+        self.accessor = accessor
 
     def create(
         self,
@@ -16,7 +18,7 @@ class UserRepository:
         name: str,
         surname: str
     ) -> User:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             if session.query(User).filter_by(email=email).count() > 0:
                 raise RuntimeError("User with this email already exists")
             if session.query(User).filter_by(login=login).count() > 0:
@@ -35,7 +37,7 @@ class UserRepository:
             return user
 
     def update(self, user: User):
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             values = {
                 "id": user.id,
                 "login": user.login,
@@ -50,12 +52,12 @@ class UserRepository:
             session.commit()
 
     def select_all(self) -> List[User]:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(User).all()
 
     def _find_user_by_unique_param(self, param_name: str, param_value: Any) -> Optional[User]:
         param = {param_name: param_value}
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(User) \
                 .filter_by(**param) \
                 .first()

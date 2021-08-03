@@ -1,17 +1,19 @@
 from typing import Optional, List
-from ..dao import DBAccessor
+import inject
+from ..dao import BaseDBAccessor
 from .course import Course
 
 
 class CourseRepository:
-    def __init__(self):
-        self.accessor = DBAccessor
+    @inject.params(accessor=BaseDBAccessor)
+    def __init__(self, accessor: BaseDBAccessor = None):
+        self.accessor = accessor
 
     def create(self,
                name: str,
                environment: str,
                teacher_name: str) -> Course:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             if session.query(Course).filter_by(name=name,
                                                environment=environment,
                                                teacher=teacher_name).count() > 0:
@@ -26,13 +28,13 @@ class CourseRepository:
             return course
 
     def remove(self, course_id: int):
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             session.query(Course).filter_by(id=course_id).delete()
             session.flush()
             session.commit()
 
     def find_course_by_id(self, course_id: int) -> Optional[Course]:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(Course) \
                 .filter_by(id=course_id) \
                 .first()
@@ -46,7 +48,7 @@ class CourseRepository:
                         return True
             return False
 
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             # "contains" method needed but not implemented in sqlalchemy
             courses = session.query(Course).all()
             courses = list(filter(lambda course: contains_in_name(course.teacher, query_name), courses))

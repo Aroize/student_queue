@@ -1,16 +1,18 @@
-from ..dao import DBAccessor
 from typing import Optional
+import inject
+from ..dao import BaseDBAccessor
 from .group import Group
 from .group_member import GroupMember
 
 
 class GroupRepository:
 
-    def __init__(self):
-        self.accessor = DBAccessor
+    @inject.params(accessor=BaseDBAccessor)
+    def __init__(self, accessor: BaseDBAccessor = None):
+        self.accessor = accessor
 
     def update(self, group: Group):
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             session.query(Group) \
                 .filter(Group.id == group.id) \
                 .update(group.values)
@@ -21,7 +23,7 @@ class GroupRepository:
         title: str,
         admin_id: int
     ) -> Optional[Group]:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             group = Group(title=title, admin=admin_id)
 
             session.add(group)
@@ -39,7 +41,7 @@ class GroupRepository:
         group_id: int,
         user_id: int
     ) -> bool:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             is_member = session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
                 .filter(GroupMember.user_id == user_id) \
@@ -59,7 +61,7 @@ class GroupRepository:
         group_id: int,
         user_id: int
     ) -> bool:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             group = session.query(Group) \
                 .filter(Group.id == group_id) \
                 .first()
@@ -76,7 +78,7 @@ class GroupRepository:
         self,
         group_id: int
     ):
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
                 .delete()
@@ -89,7 +91,7 @@ class GroupRepository:
         self,
         group_id: int
     ) -> int:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             return session.query(GroupMember) \
                           .filter(GroupMember.group_id == group_id) \
                           .count()
@@ -99,7 +101,7 @@ class GroupRepository:
         group_id: int,
         new_admin: int
     ) -> bool:
-        with self.accessor().session() as session:
+        with self.accessor.session() as session:
             new_admin_is_member = session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
                 .filter(GroupMember.user_id == new_admin) \
