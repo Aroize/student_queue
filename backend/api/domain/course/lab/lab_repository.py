@@ -40,5 +40,5 @@ class LabRepository:
     def find_labs_by_course_id(self, course_id: int) -> List[Lab]:
         with self.accessor().session() as session:
             labs = session.query(Lab). \
-                        filter_by(course_id=course_id)
+                filter_by(course_id=course_id)
             return labs

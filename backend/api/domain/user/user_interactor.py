@@ -85,7 +85,9 @@ class UserInteractor:
         return True
 
     @inject.params(email_confirmation_repository=UserEmailConfirmationRepository)
-    def fake_confirm_email(self, id: int, email_confirmation_repository: UserEmailConfirmationRepository = None) -> bool:
+    def fake_confirm_email(self,
+                           id: int,
+                           email_confirmation_repository: UserEmailConfirmationRepository = None) -> bool:
         confirmation = email_confirmation_repository.find_confirmation_by_user(id)
         if confirmation is None:
             return False

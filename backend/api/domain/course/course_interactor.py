@@ -55,9 +55,9 @@ class CourseInteractor:
 
     @staticmethod
     def _capitalize_teacher_name(name: str) -> str:
-        make_name = lambda name: name.lower().capitalize()
+        def make_name(name):
+            return name.lower().capitalize()
         return ' '.join(list(map(make_name, name.split())))
 
     def _is_environment_valid(self, env: str) -> bool:
         return env in self.environments
-

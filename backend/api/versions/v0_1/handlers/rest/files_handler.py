@@ -53,14 +53,14 @@ class FilesHandler(StaticFileHandler):
     @staticmethod
     def _is_one_picture(file: bytes) -> bool:
         return isinstance(file, bytes) and \
-               len(file) > 0
+            len(file) > 0
 
     @inject.params(validator=JwtTokenControllerImpl, file_interactor=FileInteractor)
     async def post(self,
-                  path,
-                  include_body=True,
-                  validator: JwtTokenControllerImpl = None,
-                  file_interactor: FileInteractor = None):
+                   path,
+                   include_body=True,
+                   validator: JwtTokenControllerImpl = None,
+                   file_interactor: FileInteractor = None):
         # check creds
         headers = self.request.headers
 
