@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 from jwt import jwk_from_dict
 import unittest
 from backend.api.security.keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
+from backend.api.security.date_time_provider import TestNowDateTimeProvider
 from backend.api.security import (
-    NowDateTimeProvider,
     JwtTokenController,
     JwtTokenControllerImpl,
     Credentials,
@@ -17,27 +17,18 @@ access_path = "tools/certs/access_secret.json"
 refresh_path = "tools/certs/refresh_secret.json"
 
 
-class TestNowDateTimeProvider(NowDateTimeProvider):
-
-    def __init__(self, delta: timedelta):
-        self.delta = delta
-
-    def now(self) -> datetime:
-        return super().now() - self.delta
-
-
 def create_jwt_controller() -> JwtTokenController:
-    return JwtTokenControllerImpl(
+    return JwtTokenControllerImpl.from_files(
         access_secret_file=access_path,
         refresh_secret_file=refresh_path
     )
 
 
 def create_fake_jwt_controller(timedelta: timedelta) -> JwtTokenController:
-    return JwtTokenControllerImpl(
+    return JwtTokenControllerImpl.from_files(
         access_secret_file=access_path,
         refresh_secret_file=refresh_path,
-        datetime_provider=TestNowDateTimeProvider(timedelta)
+        date_time_provider=TestNowDateTimeProvider(timedelta)
     )
 
 
@@ -45,7 +36,7 @@ class SecurityTests(unittest.TestCase):
 
     def test_creating_jwt_controller(self):
 
-        from_path = JwtTokenControllerImpl(
+        from_path = JwtTokenControllerImpl.from_files(
             access_secret_file=access_path,
             refresh_secret_file=refresh_path
         )
@@ -59,7 +50,7 @@ class SecurityTests(unittest.TestCase):
         with open(refresh_path) as refresh:
             refresh_dict = json.load(refresh)
 
-        from_dict = JwtTokenControllerImpl(
+        from_dict = JwtTokenControllerImpl.from_json(
             access_secret_json=access_dict,
             refresh_secret_json=refresh_dict
         )

@@ -6,7 +6,7 @@ from datetime import timedelta
 from jwt.utils import get_time_from_int, get_int_from_datetime
 from backend.api.security.keys import HEADER_USER_ID, HEADER_ACCESS_TOKEN, HEADER_REFRESH_TOKEN
 from .jwt_token_controller import JwtTokenController
-from .now_date_time_provider import NowDateTimeProvider
+from .date_time_provider import BaseDateTimeProvider, NowDateTimeProvider
 from .credentials import Credentials
 from .refresh_credentials import RefreshCredentials
 from .access_credentials import AccessCredentials
@@ -14,21 +14,30 @@ from .access_credentials import AccessCredentials
 
 class JwtTokenControllerImpl(JwtTokenController):
     @classmethod
-    def from_files(cls, access_secret_file: Path, refresh_secret_file: Path):
+    def from_files(cls,
+                   access_secret_file: Path,
+                   refresh_secret_file: Path,
+                   date_time_provider: BaseDateTimeProvider = NowDateTimeProvider()):
         with open(access_secret_file) as access:
             access_secret_json = json.load(access)
         with open(refresh_secret_file) as refresh:
             refresh_secret_json = json.load(refresh)
-        return cls.from_json(access_secret_json, refresh_secret_json)
+        return cls.from_json(access_secret_json, refresh_secret_json, date_time_provider)
 
     @classmethod
-    def from_json(cls, access_secret_json: dict, refresh_secret_json: dict):
+    def from_json(cls,
+                  access_secret_json: dict,
+                  refresh_secret_json: dict,
+                  date_time_provider: BaseDateTimeProvider = NowDateTimeProvider()):
         access_secret = jwk_from_dict(access_secret_json)
         refresh_secret = jwk_from_dict(refresh_secret_json)
-        return cls(access_secret, refresh_secret)
+        return cls(access_secret, refresh_secret, date_time_provider)
 
-    def __init__(self, access_secret: AbstractJWKBase, refresh_secret: AbstractJWKBase):
-        self.datetime_provider = NowDateTimeProvider()
+    def __init__(self,
+                 access_secret: AbstractJWKBase,
+                 refresh_secret: AbstractJWKBase,
+                 date_time_provider: BaseDateTimeProvider = NowDateTimeProvider()):
+        self.datetime_provider = date_time_provider
         self.access_secret = access_secret
         self.refresh_secret = refresh_secret
 
