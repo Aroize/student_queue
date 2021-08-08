@@ -32,7 +32,7 @@ class FileRepository:
                 print('content written')
             return file
 
-    def find_file_by_id(self, file_id: int) -> Optional[File]:
+    def get(self, file_id: int) -> Optional[File]:
         with self.accessor.session() as session:
             return session.query(File) \
                 .filter_by(id=file_id) \

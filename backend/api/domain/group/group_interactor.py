@@ -1,7 +1,5 @@
 from typing import Optional
-
 import inject
-
 from ..user import UserRepository
 from .group import Group
 from .group_repository import GroupRepository
@@ -25,3 +23,15 @@ class GroupInteractor:
 
         group = group_repository.create(title, admin.id)
         return group
+
+    @inject.params(group_repository=GroupRepository)
+    def find_by_id(self, group_id: int, group_repository: GroupRepository = None) -> Optional[Group]:
+        return group_repository.get(group_id)
+
+    @inject.params(group_repository=GroupRepository)
+    def user_in_group(self,
+                      user_id: int,
+                      group_id: int,
+                      group_repository: GroupRepository = None
+                      ) -> bool:
+        return group_repository.contains(group_id, user_id)

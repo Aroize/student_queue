@@ -33,13 +33,13 @@ class CourseRepository:
             session.flush()
             session.commit()
 
-    def find_course_by_id(self, course_id: int) -> Optional[Course]:
+    def get(self, course_id: int) -> Optional[Course]:
         with self.accessor.session() as session:
             return session.query(Course) \
                 .filter_by(id=course_id) \
                 .first()
 
-    def find_courses_by_teacher_name(self, query_name: str) -> List[Course]:
+    def get_by_teacher_name(self, query_name: str) -> List[Course]:
 
         def contains_in_name(teacher_name: str, query_name: str):
             for teacher_name_part in teacher_name.split():

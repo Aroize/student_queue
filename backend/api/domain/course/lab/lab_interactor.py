@@ -35,5 +35,12 @@ class LabInteractor:
     def find_labs_by_course(self,
                             course_id: int,
                             lab_repository: LabRepository = None) -> List[Lab]:
-        labs = lab_repository.find_labs_by_course_id(course_id)
+        labs = lab_repository.get_by_course_id(course_id)
         return labs
+
+    @inject.params(lab_repository=LabRepository)
+    def find_by_id(self,
+                   lab_id: int,
+                   lab_repository: LabRepository = None) -> Lab:
+        lab = lab_repository.get(lab_id)
+        return lab

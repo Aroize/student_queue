@@ -43,7 +43,7 @@ class FileInteractor:
 
     @inject.params(file_repository=FileRepository)
     def get(self, user_id: int, file_id: int, file_repository: FileRepository = None) -> Optional[File]:
-        file = file_repository.find_file_by_id(file_id)
+        file = file_repository.get(file_id)
         if file is None:
             return None
         if file.owner == user_id:

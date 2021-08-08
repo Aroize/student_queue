@@ -33,13 +33,13 @@ class LabRepository:
     def remove(self, course_id: int):
         raise NotImplemented
 
-    def find_lab_by_id(self, lab_id: int) -> Optional[Lab]:
+    def get(self, lab_id: int) -> Optional[Lab]:
         with self.accessor.session() as session:
             return session.query(Lab) \
                 .filter_by(id=lab_id) \
                 .first()
 
-    def find_labs_by_course_id(self, course_id: int) -> List[Lab]:
+    def get_by_course_id(self, course_id: int) -> List[Lab]:
         with self.accessor.session() as session:
             labs = session.query(Lab). \
                 filter_by(course_id=course_id)

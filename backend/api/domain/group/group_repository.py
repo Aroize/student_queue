@@ -36,19 +36,32 @@ class GroupRepository:
             session.commit()
             return group
 
-    def add_user(
-        self,
-        group_id: int,
-        user_id: int
-    ) -> bool:
+    def get(self, group_id: int) -> Optional[Group]:
+        with self.accessor.session() as session:
+            group = session.query(Group) \
+                .filter(Group.id == group_id) \
+                .first()
+            return group
+
+    def contains(self,
+                 group_id: int,
+                 user_id: int) -> bool:
         with self.accessor.session() as session:
             is_member = session.query(GroupMember) \
                 .filter(GroupMember.group_id == group_id) \
                 .filter(GroupMember.user_id == user_id) \
                 .count() > 0
-            if is_member:
-                return False
+            return is_member
 
+    def add_user(
+        self,
+        group_id: int,
+        user_id: int
+    ) -> bool:
+        if self.contains(group_id, user_id):
+            return False
+
+        with self.accessor.session() as session:
             member = GroupMember(user_id=user_id, group_id=group_id)
             session.add(member)
             session.flush()
@@ -101,13 +114,10 @@ class GroupRepository:
         group_id: int,
         new_admin: int
     ) -> bool:
+        if not self.contains(group_id, new_admin):
+            return False
+
         with self.accessor.session() as session:
-            new_admin_is_member = session.query(GroupMember) \
-                .filter(GroupMember.group_id == group_id) \
-                .filter(GroupMember.user_id == new_admin) \
-                .count() > 0
-            if not new_admin_is_member:
-                return False
             group = session.query(Group).filter(Group.id == group_id).first()
 
             if group.admin == new_admin:

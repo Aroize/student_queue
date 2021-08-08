@@ -65,6 +65,10 @@ class UserInteractor:
 
         return user
 
+    @inject.params(user_repository=UserRepository)
+    def find_by_id(self, user_id: int, user_repository: UserRepository = None) -> Optional[User]:
+        return user_repository.find_user_by_id(user_id)
+
     @inject.params(user_repository=UserRepository,
                    email_confirmation_repository=UserEmailConfirmationRepository)
     def confirm_email(self,
