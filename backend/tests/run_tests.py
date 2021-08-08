@@ -10,7 +10,7 @@ if __name__ == '__main__':
     os.chdir(CURRENT_PATH)
 
     suites = [
-                # unittest.TestLoader().loadTestsFromModule(security_tests),
+                unittest.TestLoader().loadTestsFromModule(security_tests),
                 unittest.TestLoader().loadTestsFromModule(user_tests)
              ]
 

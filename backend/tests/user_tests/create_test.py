@@ -1,4 +1,3 @@
-import smtplib
 from pathlib import Path
 import random
 import unittest
@@ -43,3 +42,28 @@ class CreateTests(unittest.TestCase):
         user = self._random_valid_user()
         user = inject.instance(UserInteractor).create(**user)
         self.assertIsNotNone(user.id)
+
+    def _test_invalid_user_field_create(self, field):
+        self._maybe_config_injector()
+        user = self._random_valid_user()
+        user[field] = ''
+        try:
+            user = inject.instance(UserInteractor).create(**user)
+            assert False
+        except ValueError:
+            pass  # ok
+
+    def test_invalid_login_user_create(self):
+        self._test_invalid_user_field_create('login')
+
+    def test_invalid_password_user_create(self):
+        self._test_invalid_user_field_create('password')
+
+    def test_invalid_email_user_create(self):
+        self._test_invalid_user_field_create('email')
+
+    def test_invalid_name_user_create(self):
+        self._test_invalid_user_field_create('name')
+
+    def test_invalid_surname_user_create(self):
+        self._test_invalid_user_field_create('surname')
