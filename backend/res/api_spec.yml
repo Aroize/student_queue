@@ -1,0 +1,212 @@
+openapi: 3.0.1
+info:
+  title: OAS 3
+  version: 1.0.0
+tags:
+- name: v0.1
+
+paths:
+  /v0.1:
+    post:
+      tags:
+        - v0.1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: false
+              oneOf:
+                - $ref: '#/components/schemas/debug.echo'
+                - $ref: '#/components/schemas/debug.echo_secured'
+                - $ref: '#/components/schemas/auth.register'
+                - $ref: '#/components/schemas/auth.auth'
+                - $ref: '#/components/schemas/auth.refresh_credentials'
+                - $ref: '#/components/schemas/group.create'
+                - $ref: '#/components/schemas/debug.fake_email_verification'
+                - $ref: '#/components/schemas/course.create'
+                - $ref: '#/components/schemas/course.remove'
+                - $ref: '#/components/schemas/course.find.by_teacher'
+                - $ref: '#/components/schemas/course.lab.create'
+                - $ref: '#/components/schemas/course.lab.find.by_course'
+      responses:
+        200:
+          description: message delivered.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/BaseOkJrpcResponse'
+                  - $ref: '#/components/schemas/BaseErrorJrpcResponse'
+
+
+components:
+  schemas:
+    BaseJrpcRequest: # base jrpc request template
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          default: "2.0"
+        id:
+          type: integer
+          default: 0
+        method:
+          type:
+            object
+        params:
+          type:
+            object
+
+    # BaseSecuredJrpcRequest:
+    #   parameters:
+    #     - in: header
+    #       name: X-username
+    #   allOf:     # inheritance from base jrpc class
+    #     - $ref: '#/components/schemas/BaseJrpcRequest'
+    #     - type: object
+
+    BaseOkJrpcResponse: # base jrpc response template
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          default: "2.0"
+        id:
+          type: integer
+          default: 0
+        result:
+          type: object
+
+    BaseErrorJrpcResponse: # base jrpc response template
+      type: object
+      properties:
+        jsonrpc:
+          type: string
+          default: "2.0"
+        id:
+          type: integer
+          default: 0
+        error:
+          type: object
+
+    debug.echo:
+      allOf:     # inheritance from base jrpc class
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            method:
+              type: string
+              default: 'debug.echo'
+
+    debug.echo_secured:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            method:
+              type: string
+              default: 'debug.echo_secured'
+
+    auth.register:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            method:
+              type: string
+              default: 'auth.register'
+            login:
+              type: string
+            name:
+              type: string
+            surname:
+              type: string
+            password:
+              type: string
+            email:
+              type: string
+
+    auth.auth:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            method:
+              type: string
+              default: 'auth.auth'
+            login:
+              type: string
+            password:
+              type: string
+
+    auth.refresh_credentials:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+
+    group.create:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            title:
+              type: string
+
+    debug.fake_email_verification:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            id:
+              type: integer
+              description: user id
+
+    course.create:
+      allOf:
+          - $ref: '#/components/schemas/BaseJrpcRequest'
+          - type: object
+            properties:
+              course_name:
+                type: string
+              teacher_name:
+                type: string
+              environment:
+                description: 'zoom/skype/class/etc'
+                type: string
+
+    course.remove:
+      allOf:
+          - $ref: '#/components/schemas/BaseJrpcRequest'
+          - type: object
+            properties:
+              course_id:
+                type: integer
+
+    course.find.by_teacher:
+      allOf:
+          - $ref: '#/components/schemas/BaseJrpcRequest'
+          - type: object
+            properties:
+              teacher_name:
+                type: string
+
+    course.lab.create:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            course_id:
+              type: integer
+            number:
+              type: integer
+            name:
+              type: string
+            deadline:
+              type: string
+
+    course.lab.find.by_course:
+      allOf:
+        - $ref: '#/components/schemas/BaseJrpcRequest'
+        - type: object
+          properties:
+            course_id:
+              type: integer
